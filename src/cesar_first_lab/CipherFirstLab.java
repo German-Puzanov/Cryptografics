@@ -8,6 +8,10 @@ import java.nio.file.Path;
 public class CipherFirstLab {
     private int key = 0;
     private String text = null;
+    private static final String RU_ALPHABET_UPPER = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+    private static final String RU_ALPHABET_LOWER = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+    private static final String EN_ALPHABET_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String EN_ALPHABET_LOWER = "abcdefghijklmnopqrstuvwxyz";
 
     public CipherFirstLab() {
     }
@@ -52,10 +56,15 @@ public class CipherFirstLab {
         char[] charArray = text.toCharArray();
         StringBuilder sb = new StringBuilder(text.length());
         for (char chr : charArray) {
-            if (Character.isAlphabetic(chr)) {
-                int pos = getPos(chr, key);
-                char newChar = (char) pos;
-                sb.append(newChar);
+            String alphabet = getAlphabet(chr);
+
+            if (alphabet != null) {
+                int index = alphabet.indexOf(chr);
+                int alphabetLength = alphabet.length();
+                int newIndex = (index + key) % alphabetLength;
+                if (newIndex < 0) newIndex += alphabetLength;
+
+                sb.append(alphabet.charAt(newIndex));
             } else {
                 sb.append(chr);
             }
@@ -63,26 +72,13 @@ public class CipherFirstLab {
         return sb.toString();
     }
 
-    private static int getPos(char chr, int key) {
-        char base;
-        int alphabetLength;
-        if (chr >= 'А' && chr <= 'Я') {
-            base = 'А';
-            alphabetLength = 32;
-        } else if (chr >= 'а' && chr <= 'я') {
-            base = 'а';
-            alphabetLength = 32;
-        } else if (chr >= 'A' && chr <= 'Z') {
-            base = 'A';
-            alphabetLength = 26;
-        } else {
-            base = 'a';
-            alphabetLength = 26;
-        }
 
-        int pos = base + (chr - base + key) % alphabetLength;
-        if (pos < base) pos += alphabetLength;
-        return pos;
+    private String getAlphabet(char chr) {
+        if (RU_ALPHABET_UPPER.indexOf(chr) != -1) return RU_ALPHABET_UPPER;
+        else if (RU_ALPHABET_LOWER.indexOf(chr) != -1) return RU_ALPHABET_LOWER;
+        else if (EN_ALPHABET_LOWER.indexOf(chr) != -1) return EN_ALPHABET_LOWER;
+        else if (EN_ALPHABET_UPPER.indexOf(chr) != -1) return EN_ALPHABET_UPPER;
+        else return null;
     }
 
     public void outputWriter(String text, String path) {
