@@ -1,3 +1,5 @@
+package cesar_first_lab;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -23,13 +25,13 @@ public class Main {
                         command = scanner.nextLine().trim();
                         switch (command) {
                             case "1" -> {
-                                cipher = setCipher(scanner, true);
+                                setCipher(cipher, scanner, true);
                                 String output = cipher.cesarCipher(true);
 
                                 resultOutput(cipher, output, scanner);
                             }
                             case "2" -> {
-                                cipher = setCipher(scanner, false);
+                                setCipher(cipher, scanner, false);
                                 String output = cipher.cesarCipher(true);
 
                                 resultOutput(cipher, output, scanner);
@@ -43,13 +45,13 @@ public class Main {
                         command = scanner.nextLine().trim();
                         switch (command) {
                             case "1" -> {
-                                cipher = setCipher(scanner, true);
+                                setCipher(cipher, scanner, true);
                                 String output = cipher.cesarCipher(false);
 
                                 resultOutput(cipher, output, scanner);
                             }
                             case "2" -> {
-                                cipher = setCipher(scanner, false);
+                                setCipher(cipher, scanner, false);
                                 String output = cipher.cesarCipher(false);
 
                                 resultOutput(cipher, output, scanner);
@@ -84,17 +86,19 @@ public class Main {
         }
     }
 
-    public static CipherFirstLab setCipher(Scanner scanner, boolean hasText) throws Exception {
+    public static void setCipher(CipherFirstLab cipher, Scanner scanner, boolean hasText) throws Exception {
         if (hasText) {
             System.out.print("Введите текст: ");
             String text = scanner.nextLine().trim();
             System.out.print("Введите шаг сдвига: ");
             int key = Integer.parseInt(scanner.nextLine());
-            return new CipherFirstLab(key, text);
+            cipher.setKey(key);
+            cipher.setText(text);
         } else {
             System.out.print("Введите шаг сдвига: ");
             int key = Integer.parseInt(scanner.nextLine());
-            return new CipherFirstLab(key, Path.of("src/input/input.txt"));
+            cipher.setKey(key);
+            cipher.setText(Path.of("src/input/input.txt"));
         }
     }
 
@@ -107,11 +111,14 @@ public class Main {
     }
 
     public static void clearFiles() throws IOException {
-        try(FileWriter writer = new FileWriter("src/output/output.txt")){
-            writer.write("");
-        }
-        try(FileWriter writer = new FileWriter("src/input/input.txt")){
-            writer.write("");
+        System.out.print("Очистить файлы? (y/n): ");
+        if (new Scanner(System.in).nextLine().equalsIgnoreCase("y")) {
+            try (FileWriter writer = new FileWriter("src/output/output.txt")) {
+                writer.write("");
+            }
+            try (FileWriter writer = new FileWriter("src/input/input.txt")) {
+                writer.write("");
+            }
         }
     }
 }

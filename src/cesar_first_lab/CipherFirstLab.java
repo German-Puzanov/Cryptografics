@@ -1,10 +1,12 @@
+package cesar_first_lab;
+
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 
 public class CipherFirstLab {
-    private Integer key = null;
+    private int key = 0;
     private String text = null;
 
     public CipherFirstLab() {
@@ -21,7 +23,6 @@ public class CipherFirstLab {
     }
 
     public void setKey(int key) {
-        if (key <= 0) throw new IllegalArgumentException("Invalid key");
         this.key = key;
     }
 
@@ -52,14 +53,36 @@ public class CipherFirstLab {
         StringBuilder sb = new StringBuilder(text.length());
         for (char chr : charArray) {
             if (Character.isAlphabetic(chr)) {
-                char base = Character.isUpperCase(chr) ? 'A' : 'a';
-                char newChar = (char) (base + (chr - base + key) % 26);
+                int pos = getPos(chr, key);
+                char newChar = (char) pos;
                 sb.append(newChar);
             } else {
                 sb.append(chr);
             }
         }
         return sb.toString();
+    }
+
+    private static int getPos(char chr, int key) {
+        char base;
+        int alphabetLength;
+        if (chr >= 'А' && chr <= 'Я') {
+            base = 'А';
+            alphabetLength = 32;
+        } else if (chr >= 'а' && chr <= 'я') {
+            base = 'а';
+            alphabetLength = 32;
+        } else if (chr >= 'A' && chr <= 'Z') {
+            base = 'A';
+            alphabetLength = 26;
+        } else {
+            base = 'a';
+            alphabetLength = 26;
+        }
+
+        int pos = base + (chr - base + key) % alphabetLength;
+        if (pos < base) pos += alphabetLength;
+        return pos;
     }
 
     public void outputWriter(String text, String path) {
