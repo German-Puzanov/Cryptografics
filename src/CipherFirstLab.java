@@ -20,17 +20,9 @@ public class CipherFirstLab {
         setText(path);
     }
 
-    public int getKey() {
-        return key;
-    }
-
     public void setKey(int key) {
         if (key <= 0) throw new IllegalArgumentException("Invalid key");
         this.key = key;
-    }
-
-    public String getText() {
-        return text;
     }
 
     public void setText(String text) {
