@@ -60,7 +60,7 @@ public class Main {
                     }
                     case "3" -> System.out.println(cipher);
                     case "0" -> {
-                        clearFiles();
+                        clearFiles(scanner);
                         return;
                     }
                     default -> System.out.println("Invalid command!");
@@ -110,9 +110,9 @@ public class Main {
                 0. Выход\s""");
     }
 
-    public static void clearFiles() throws IOException {
+    public static void clearFiles(Scanner scanner) throws IOException {
         System.out.print("Очистить файлы? (y/n): ");
-        if (new Scanner(System.in).nextLine().equalsIgnoreCase("y")) {
+        if (scanner.nextLine().equalsIgnoreCase("y")) {
             try (FileWriter writer = new FileWriter("src/output/output.txt")) {
                 writer.write("");
             }

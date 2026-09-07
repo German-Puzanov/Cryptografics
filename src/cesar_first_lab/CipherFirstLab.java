@@ -16,15 +16,15 @@ public class CipherFirstLab {
     public CipherFirstLab() {
     }
 
-    public CipherFirstLab(int key, String text) {
-        setKey(key);
-        setText(text);
-    }
-
-    public CipherFirstLab(int key, Path path) throws Exception {
-        setKey(key);
-        setText(path);
-    }
+//    public CipherFirstLab(int key, String text) {
+//        setKey(key);
+//        setText(text);
+//    }
+//
+//    public CipherFirstLab(int key, Path path) throws Exception {
+//        setKey(key);
+//        setText(path);
+//    }
 
     public void setKey(int key) {
         this.key = key;
@@ -94,7 +94,7 @@ public class CipherFirstLab {
     public String toString() {
         return "Cipher{" +
                 "key=" + key +
-                ", text='" + text + '\'' +
+                ", text='" + (text != null ? text.substring(0, Math.min(20, text.length())) + "..." : "null") + '\'' +
                 '}';
     }
 }
