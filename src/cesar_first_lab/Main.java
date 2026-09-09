@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
         CipherFirstLab cipher = new CipherFirstLab();
@@ -65,8 +65,8 @@ public class Main {
                     }
                     default -> System.out.println("Invalid command!");
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("invalid key!");
+            } catch (Exception e) {
+                System.out.println("Exception: " + e.getMessage());
             }
         }
 

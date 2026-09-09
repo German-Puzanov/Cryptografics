@@ -10,21 +10,13 @@ public class CipherFirstLab {
     private String text = null;
     private static final String RU_ALPHABET_UPPER = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
     private static final String RU_ALPHABET_LOWER = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+    private static final String DIGITS = "0123456789";
+
     private static final String EN_ALPHABET_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String EN_ALPHABET_LOWER = "abcdefghijklmnopqrstuvwxyz";
 
     public CipherFirstLab() {
     }
-
-//    public CipherFirstLab(int key, String text) {
-//        setKey(key);
-//        setText(text);
-//    }
-//
-//    public CipherFirstLab(int key, Path path) throws Exception {
-//        setKey(key);
-//        setText(path);
-//    }
 
     public void setKey(int key) {
         this.key = key;
@@ -47,7 +39,7 @@ public class CipherFirstLab {
             text = sb.toString();
 
         } catch (IOException e) {
-            throw new Exception("IOException!");
+            System.out.println("IOException!");;
         }
     }
 
