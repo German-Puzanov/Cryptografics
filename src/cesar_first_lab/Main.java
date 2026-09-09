@@ -86,7 +86,7 @@ public class Main {
         }
     }
 
-    public static void setCipher(CipherFirstLab cipher, Scanner scanner, boolean hasText) throws Exception {
+    public static void setCipher(CipherFirstLab cipher, Scanner scanner, boolean hasText) {
         if (hasText) {
             System.out.print("Введите текст: ");
             String text = scanner.nextLine().trim();

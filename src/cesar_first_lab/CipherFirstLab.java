@@ -8,12 +8,7 @@ import java.nio.file.Path;
 public class CipherFirstLab {
     private int key = 0;
     private String text = null;
-    private static final String RU_ALPHABET_UPPER = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
-    private static final String RU_ALPHABET_LOWER = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-    private static final String DIGITS = "0123456789";
-
-    private static final String EN_ALPHABET_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final String EN_ALPHABET_LOWER = "abcdefghijklmnopqrstuvwxyz";
+    private static final String ALPHABET = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789 ,.:;?!-()[]";
 
     public CipherFirstLab() {
     }
@@ -28,7 +23,7 @@ public class CipherFirstLab {
     }
 
 
-    public void setText(Path path) throws Exception {
+    public void setText(Path path) {
         try (FileReader reader = new FileReader(path.toFile())) {
             int chr;
             StringBuilder sb = new StringBuilder();
@@ -39,7 +34,8 @@ public class CipherFirstLab {
             text = sb.toString();
 
         } catch (IOException e) {
-            System.out.println("IOException!");;
+            System.out.println("IOException!");
+            ;
         }
     }
 
@@ -47,16 +43,19 @@ public class CipherFirstLab {
         int key = encode ? this.key : this.key * -1;
         char[] charArray = text.toCharArray();
         StringBuilder sb = new StringBuilder(text.length());
-        for (char chr : charArray) {
-            String alphabet = getAlphabet(chr);
-
-            if (alphabet != null) {
-                int index = alphabet.indexOf(chr);
-                int alphabetLength = alphabet.length();
-                int newIndex = (index + key) % alphabetLength;
-                if (newIndex < 0) newIndex += alphabetLength;
-
-                sb.append(alphabet.charAt(newIndex));
+        for (Character chr : charArray) {
+            String cipherChar;
+            if (inAlphabet(chr.toString())) {
+                String lowerChr = chr.toString().toLowerCase();
+                int index = ALPHABET.indexOf(lowerChr);
+                int newIndex = (index + key) % ALPHABET.length();
+                if (newIndex < 0) newIndex += ALPHABET.length();
+                if (chr.toString().toLowerCase().equalsIgnoreCase(chr.toString())){
+                    cipherChar = String.valueOf(ALPHABET.charAt(newIndex));
+                } else {
+                    cipherChar = String.valueOf(ALPHABET.charAt(newIndex)).toUpperCase();
+                }
+                sb.append(cipherChar);
             } else {
                 sb.append(chr);
             }
@@ -65,12 +64,8 @@ public class CipherFirstLab {
     }
 
 
-    private String getAlphabet(char chr) {
-        if (RU_ALPHABET_UPPER.indexOf(chr) != -1) return RU_ALPHABET_UPPER;
-        else if (RU_ALPHABET_LOWER.indexOf(chr) != -1) return RU_ALPHABET_LOWER;
-        else if (EN_ALPHABET_LOWER.indexOf(chr) != -1) return EN_ALPHABET_LOWER;
-        else if (EN_ALPHABET_UPPER.indexOf(chr) != -1) return EN_ALPHABET_UPPER;
-        else return null;
+    private boolean inAlphabet(String chr) {
+        return ALPHABET.contains(chr);
     }
 
     public void outputWriter(String text, String path) {
