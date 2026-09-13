@@ -35,7 +35,6 @@ public class CipherFirstLab {
 
         } catch (IOException e) {
             System.out.println("IOException!");
-            ;
         }
     }
 
@@ -45,12 +44,12 @@ public class CipherFirstLab {
         StringBuilder sb = new StringBuilder(text.length());
         for (Character chr : charArray) {
             String cipherChar;
-            if (inAlphabet(chr.toString())) {
-                String lowerChr = chr.toString().toLowerCase();
+            String lowerChr = chr.toString().toLowerCase();
+            if (inAlphabet(lowerChr)) {
                 int index = ALPHABET.indexOf(lowerChr);
                 int newIndex = (index + key) % ALPHABET.length();
                 if (newIndex < 0) newIndex += ALPHABET.length();
-                if (chr.toString().toLowerCase().equalsIgnoreCase(chr.toString())){
+                if (chr.toString().equals(lowerChr)){
                     cipherChar = String.valueOf(ALPHABET.charAt(newIndex));
                 } else {
                     cipherChar = String.valueOf(ALPHABET.charAt(newIndex)).toUpperCase();
