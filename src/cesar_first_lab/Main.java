@@ -89,7 +89,7 @@ public class Main {
     public static void setCipher(CipherFirstLab cipher, Scanner scanner, boolean hasText) {
         if (hasText) {
             System.out.print("Введите текст: ");
-            String text = scanner.nextLine().trim();
+            String text = scanner.nextLine();
             System.out.print("Введите шаг сдвига: ");
             int key = Integer.parseInt(scanner.nextLine());
             cipher.setKey(key);
