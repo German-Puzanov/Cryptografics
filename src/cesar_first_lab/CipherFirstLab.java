@@ -8,7 +8,7 @@ import java.nio.file.Path;
 public class CipherFirstLab {
     private int key = 0;
     private String text = null;
-    private static final String ALPHABET = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789 ,.:;?!-()[]";
+    private static final String ALPHABET = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789 ,.:;?!-()[]";
 
     public CipherFirstLab() {
     }
@@ -44,16 +44,11 @@ public class CipherFirstLab {
         StringBuilder sb = new StringBuilder(text.length());
         for (Character chr : charArray) {
             String cipherChar;
-            String lowerChr = chr.toString().toLowerCase();
-            if (inAlphabet(lowerChr)) {
-                int index = ALPHABET.indexOf(lowerChr);
+            if (inAlphabet(String.valueOf(chr))) {
+                int index = ALPHABET.indexOf(chr);
                 int newIndex = (index + key) % ALPHABET.length();
                 if (newIndex < 0) newIndex += ALPHABET.length();
-                if (chr.toString().equals(lowerChr)){
-                    cipherChar = String.valueOf(ALPHABET.charAt(newIndex));
-                } else {
-                    cipherChar = String.valueOf(ALPHABET.charAt(newIndex)).toUpperCase();
-                }
+                cipherChar = String.valueOf(ALPHABET.charAt(newIndex));
                 sb.append(cipherChar);
             } else {
                 sb.append(chr);
