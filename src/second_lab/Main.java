@@ -4,10 +4,14 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+    private static final String baseAlphabet = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя0123456789 .,!?_";
+
     private static final List<String> alphabets =
-            List.of("АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя0123456789 .,!?_",
+            List.of(
                     "ЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя0123456789 .,!?_АБВГДЕЖ",
-                    "ПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя0123456789 .,!?_АБВГДЕЖЗИЙКЛМНО");
+                    "ПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя0123456789 .,!?_АБВГДЕЖЗИЙКЛМНО",
+                    "ЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя0123456789 .,!?_АБВГДЕЖЗИЙКЛМНОПРСТУФХЦ"
+            );
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -18,17 +22,17 @@ public class Main {
 
             switch (command) {
                 case "1" -> {
-                    String[] params = getParams(scanner);
+                    String text = getText(scanner);
                     try {
-                        System.out.printf("Зашифрованный текст: %s\n", cipher(params[1], Integer.parseInt(params[0]), false));
+                        System.out.printf("Зашифрованный текст: %s\n", cipher(text,false));
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid params!");
                     }
                 }
                 case "2" -> {
-                    String[] params = getParams(scanner);
+                    String text = getText(scanner);
                     try {
-                        System.out.printf("Расшифрованный текст: %s\n", cipher(params[1], Integer.parseInt(params[0]), true));
+                        System.out.printf("Расшифрованный текст: %s\n", cipher(text, true));
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid params!");
                     }
@@ -41,33 +45,39 @@ public class Main {
         }
     }
 
-    public static String cipher(String text, int key, boolean isCrypt) {
+    public static String cipher(String text, boolean isCrypt) {
         if (text == null) return null;
-        key = isCrypt ? -1 * key : key;
         String[] splitText = text.split("");
         StringBuilder result = new StringBuilder();
         int index;
-        int newIndex;
-        for (int i = 0; i < splitText.length; i++) {
-            String currentAlphabet = alphabets.get(i % alphabets.size());
-            index = currentAlphabet.indexOf(splitText[i]);
-            if (index == -1) {
-                result.append(splitText[i]);
-                continue;
+        if (!isCrypt){
+            for (int i = 0; i < splitText.length; i++) {
+                String currentAlphabet = alphabets.get(i % alphabets.size());
+                index = baseAlphabet.indexOf(splitText[i]);
+                if (index == -1) {
+                    result.append(splitText[i]);
+                    continue;
+                }
+                result.append(currentAlphabet.charAt(index));
             }
-            newIndex = (index + key) % currentAlphabet.length();
-            if (newIndex < 0) newIndex += currentAlphabet.length();
-            result.append(currentAlphabet.charAt(newIndex));
+        } else {
+            for (int i = 0; i < splitText.length; i++) {
+                String currentAlphabet = alphabets.get(i % alphabets.size());
+                index = currentAlphabet.indexOf(splitText[i]);
+                if (index == -1) {
+                    result.append(splitText[i]);
+                    continue;
+                }
+                result.append(baseAlphabet.charAt(index));
+            }
         }
         return result.toString();
+
     }
 
-    public static String[] getParams(Scanner scanner) {
-        System.out.print("Введите ключ: ");
-        String key = scanner.nextLine().trim();
+    public static String getText(Scanner scanner) {
         System.out.print("Введите текст: ");
-        String text = scanner.nextLine();
-        return new String[]{key, text};
+        return scanner.nextLine();
     }
 
     public static void printMenu() {
