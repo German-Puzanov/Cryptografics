@@ -46,24 +46,37 @@ public class Main {
 
     public static String cipher(String text, boolean isCrypt) {
         if (text == null) return null;
-        String[] splitText = text.split("");
-        StringBuilder result = new StringBuilder();
-        int index;
-        if (!isCrypt) {
-            for (int i = 0; i < splitText.length; i++) {
-                String alphabet = getAlphabet(i);
-                index = baseAlphabet.indexOf(splitText[i]);
-                updateResult(splitText[i], index, result, alphabet);
-            }
-        } else {
-            for (int i = 0; i < splitText.length; i++) {
-                String alphabet = getAlphabet(i);
-                index = alphabet.indexOf(splitText[i]);
-                updateResult(splitText[i], index, result, baseAlphabet);
-            }
-        }
-        return result.toString();
 
+        int circuitCount = alphabets.size();
+        int[] counters = new int[circuitCount];
+        StringBuilder result = new StringBuilder();
+
+        for (char ch : text.toCharArray()) {
+            String s = String.valueOf(ch);
+
+            if (!baseAlphabet.contains(s)) {
+                result.append(s);
+                continue;
+            }
+            if (!isCrypt) {
+                for (int i = 0; i < circuitCount; i++) {
+                    String alphabet = alphabets.get(i)[counters[i]];
+                    int idx = baseAlphabet.indexOf(s);
+                    s = String.valueOf(alphabet.charAt(idx));
+                }
+            } else {
+                for (int i = circuitCount - 1; i >= 0; i--) {
+                    String alphabet = alphabets.get(i)[counters[i]];
+                    int idx = alphabet.indexOf(s);
+                    s = String.valueOf(baseAlphabet.charAt(idx));
+                }
+            }
+
+            result.append(s);
+            alphabetIndexGetter(counters);
+        }
+
+        return result.toString();
     }
 
     public static String getText(Scanner scanner) {
@@ -81,36 +94,24 @@ public class Main {
 
 
     public static void updateMap() {
-        alphabets.put(0, new String[]{
-                "ЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙК",
-                "3456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя012",
-                "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
-        });
-
-        alphabets.put(1, new String[]{
-                "юя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэ",
-                "ГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВ",
-                ".,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789"
-        });
-
-        alphabets.put(2, new String[]{
-                "вгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯаб",
-                "89.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя01234567",
-                "ПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНО"
-        });
+        alphabets.put(0, new String[]{"ЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙК", "3456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя012", "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"});
+        alphabets.put(1, new String[]{"юя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэ", "ГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВ", ".,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789"});
+        alphabets.put(2, new String[]{"вгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯаб", "89.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя01234567", "ПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНО"});
     }
 
-    private static String getAlphabet(int index) {
-        int circuit = index % alphabets.size();
-        int currentAlphabetIndex = index % alphabets.get(circuit).length;
-        return alphabets.get(circuit)[currentAlphabetIndex];
-    }
+    private static void alphabetIndexGetter(int[] counters) {
+        counters[0]++;
+        if (counters[0] == alphabets.get(0).length) counters[0] = 0;
 
-    private static void updateResult(String word, int index, StringBuilder result, String alphabet){
-        if (index == -1) {
-            result.append(word);
-            return;
+        if (counters[0] == 0) {
+            counters[1]++;
+            if (counters[1] == alphabets.get(1).length) counters[1] = 0;
         }
-        result.append(alphabet.charAt(index));
+
+        if (counters[0] == 0 && counters[1] == 0) {
+            counters[2]++;
+            if (counters[2] == alphabets.get(2).length) counters[2] = 0;
+        }
     }
 }
+
