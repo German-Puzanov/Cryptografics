@@ -48,7 +48,7 @@ public class Main {
         if (text == null) return null;
 
         int circuitCount = alphabets.size();
-        int[] counters = new int[circuitCount];
+        int[] alphabetIndexes = new int[circuitCount];
         StringBuilder result = new StringBuilder();
 
         for (char ch : text.toCharArray()) {
@@ -60,20 +60,20 @@ public class Main {
             }
             if (!isCrypt) {
                 for (int i = 0; i < circuitCount; i++) {
-                    String alphabet = alphabets.get(i)[counters[i]];
+                    String alphabet = alphabets.get(i)[alphabetIndexes[i]];
                     int idx = baseAlphabet.indexOf(s);
                     s = String.valueOf(alphabet.charAt(idx));
                 }
             } else {
                 for (int i = circuitCount - 1; i >= 0; i--) {
-                    String alphabet = alphabets.get(i)[counters[i]];
+                    String alphabet = alphabets.get(i)[alphabetIndexes[i]];
                     int idx = alphabet.indexOf(s);
                     s = String.valueOf(baseAlphabet.charAt(idx));
                 }
             }
 
             result.append(s);
-            alphabetIndexGetter(counters);
+            alphabetIndexPermutator(alphabetIndexes);
         }
 
         return result.toString();
@@ -94,12 +94,23 @@ public class Main {
 
 
     public static void updateMap() {
-        alphabets.put(0, new String[]{"ЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙК", "3456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя012", "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"});
-        alphabets.put(1, new String[]{"юя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэ", "ГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВ", ".,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789"});
-        alphabets.put(2, new String[]{"вгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯаб", "89.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя01234567", "ПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНО"});
+        alphabets.put(0, new String[]{
+                "ЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙК",
+                "3456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя012",
+                "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"});
+
+        alphabets.put(1, new String[]{
+                "юя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэ",
+                "ГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВ",
+                ".,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789"});
+
+        alphabets.put(2, new String[]{
+                "вгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯаб",
+                "89.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя01234567",
+                "ПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789.,!?;:-()' АБВГДЕЁЖЗИЙКЛМНО"});
     }
 
-    private static void alphabetIndexGetter(int[] counters) {
+    private static void alphabetIndexPermutator(int[] counters) {
         counters[0]++;
         if (counters[0] == alphabets.get(0).length) counters[0] = 0;
 
