@@ -50,14 +50,14 @@ public class Main {
         char[] charArr = text.toCharArray();
         for (int i = 0; i < text.length(); i++) {
             char symbol = charArr[i];
-            if (baseAlphabet.indexOf(symbol) == -1) {
+            keyIndex = baseAlphabet.indexOf(key.charAt(i % key.length()));
+            if (baseAlphabet.indexOf(symbol) == -1 || keyIndex == -1) {
                 result.append(symbol);
                 continue;
             }
-            keyIndex = baseAlphabet.indexOf(key.charAt(i % key.length()));
             if (!isCrypt) {
                 newIndex = baseAlphabet.indexOf(symbol) + keyIndex;
-                if (newIndex > baseAlphabet.length()) newIndex -= baseAlphabet.length();
+                if (newIndex >= baseAlphabet.length()) newIndex -= baseAlphabet.length();
                 result.append(baseAlphabet.charAt(newIndex));
             } else {
                 newIndex = baseAlphabet.indexOf(symbol) - keyIndex;
