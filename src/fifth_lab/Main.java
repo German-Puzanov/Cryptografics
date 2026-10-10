@@ -54,7 +54,7 @@ public class Main {
         }
         StringBuilder textBuilder = new StringBuilder(text);
         while (textBuilder.length() % key.size() != 0) {
-            textBuilder.append("~");
+            textBuilder.append("\0");
         }
 
         text = textBuilder.toString();
@@ -71,7 +71,7 @@ public class Main {
                 }
             }
         }
-        return !isCrypt ? result.toString() : result.toString().replaceAll("~", "");
+        return !isCrypt ? result.toString() : result.toString().replaceAll("\0", "");
 
     }
 
@@ -84,7 +84,7 @@ public class Main {
     }
 
     public static boolean isValidKey(List<Integer> key) {
-        return !key.isEmpty() && key.stream().noneMatch(i -> i >= key.size()) && key.stream().distinct().toArray().length == key.size();
+        return !key.isEmpty() && key.stream().noneMatch(i -> i >= key.size() || i < 0) && key.stream().distinct().toArray().length == key.size();
     }
 
     public static void printMenu() {
