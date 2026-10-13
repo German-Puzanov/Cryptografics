@@ -1,5 +1,7 @@
 package fourth_lab;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
     private static final String baseAlphabet = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789 .,!?_-";
@@ -73,13 +75,14 @@ public class Main {
 
     public static void showVigenereTable() {
         StringBuilder row;
-        System.out.println("  " + String.join(" ", baseAlphabet.split("")));
+        System.out.println(" |" + String.join(" ", baseAlphabet.split("")));
+        System.out.println("—|" + Arrays.stream(baseAlphabet.split("")).map(e -> "—").collect(Collectors.joining(" ")));
         for (int i = 0; i < baseAlphabet.length(); i++) {
             row = new StringBuilder();
             for (int j = 0; j < baseAlphabet.length(); j++) {
                 row.append(baseAlphabet.charAt((i + j) % baseAlphabet.length())).append(" ");
             }
-            System.out.println(baseAlphabet.charAt(i) + " " + row);
+            System.out.println(baseAlphabet.charAt(i) + "|" + row);
         }
         System.out.println();
     }
