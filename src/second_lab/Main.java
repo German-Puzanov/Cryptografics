@@ -24,7 +24,7 @@ public class Main {
                 case "1" -> {
                     String text = getText(scanner);
                     try {
-                        System.out.printf("Зашифрованный текст: %s\n", cipher(text,false));
+                        System.out.printf("Зашифрованный текст: %s\n", cipher(text, false));
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid params!");
                     }
@@ -50,7 +50,7 @@ public class Main {
         String[] splitText = text.split("");
         StringBuilder result = new StringBuilder();
         int index;
-        if (!isCrypt){
+        if (!isCrypt) {
             for (int i = 0; i < splitText.length; i++) {
                 String currentAlphabet = alphabets.get(i % alphabets.size());
                 index = baseAlphabet.indexOf(splitText[i]);

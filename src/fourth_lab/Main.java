@@ -2,11 +2,13 @@ package fourth_lab;
 import java.util.Scanner;
 
 public class Main {
-    private static final String baseAlphabet = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя0123456789 .,!?_";
+    private static final String baseAlphabet = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789 .,!?_-";
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         String command;
+
+        showVigenereTable();
         while (true) {
             printMenu();
             command = scanner.nextLine().trim();
@@ -18,7 +20,7 @@ public class Main {
                     System.out.print("Введите ключ: ");
                     String key = scanner.nextLine();
                     try {
-                        System.out.printf("Зашифрованный текст: %s\n", cipher(text,key, false));
+                        System.out.printf("Зашифрованный текст: %s\n", cipher(text, key, false));
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid params!");
                     }
@@ -29,7 +31,7 @@ public class Main {
                     System.out.print("Введите ключ: ");
                     String key = scanner.nextLine();
                     try {
-                        System.out.printf("Расшифрованный текст: %s\n", cipher(text,key, true));
+                        System.out.printf("Расшифрованный текст: %s\n", cipher(text, key, true));
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid params!");
                     }
@@ -67,6 +69,19 @@ public class Main {
         }
         return result.toString();
 
+    }
+
+    public static void showVigenereTable() {
+        StringBuilder row;
+        System.out.println("  " + String.join(" ", baseAlphabet.split("")));
+        for (int i = 0; i < baseAlphabet.length(); i++) {
+            row = new StringBuilder();
+            for (int j = 0; j < baseAlphabet.length(); j++) {
+                row.append(baseAlphabet.charAt((i + j) % baseAlphabet.length())).append(" ");
+            }
+            System.out.println(baseAlphabet.charAt(i) + " " + row);
+        }
+        System.out.println();
     }
 
     public static void printMenu() {
