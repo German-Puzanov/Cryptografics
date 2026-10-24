@@ -46,12 +46,19 @@ public class Main {
 
     public static String cipher(String text, List<Integer> key, boolean isCrypt) {
         StringBuilder result = new StringBuilder();
-        if (key == null  || notValidKey(key)) {
+        if (key == null || notValidKey(key)) {
             System.out.println("Ошибка: Недопустимые индексы!");
             return null;
         }
-        Character[][] blocks = tableGetter(text, key);
+
+        if (text.length() % (key.size() * BLOCK_CONST) != 0) {
+            System.out.println("Ошибка: длина шифротекста должна быть кратна " + key.size() * BLOCK_CONST);
+            return null;
+        }
+
+        Character[][] blocks = blocksGetter(text, key);
         Character[][] block;
+
         for (Character[] characters : blocks) {
             if (!isCrypt) {
                 block = blockToTable(key, characters);
@@ -61,11 +68,6 @@ public class Main {
                     }
                 }
             } else {
-                int blockSize = key.size() * BLOCK_CONST;
-                if (text.length() % blockSize != 0) {
-                    System.out.println("Ошибка: длина шифротекста должна быть кратна " + blockSize);
-                    return null;
-                }
                 result.append(decryptBlock(key, characters));
             }
         }
@@ -81,7 +83,7 @@ public class Main {
         }
     }
 
-    public static Character[][] tableGetter(String text, List<Integer> key) {
+    public static Character[][] blocksGetter(String text, List<Integer> key) {
 
         int keyLen = key.size();
         int blockSize = keyLen * BLOCK_CONST;
