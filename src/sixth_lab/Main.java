@@ -3,10 +3,11 @@ package sixth_lab;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
+    private static final int BLOCK_CONST = 2;
+    private static final String PADDING_CHAR = "`";
 
     public static void main(String[] args) {
         String command;
@@ -45,24 +46,31 @@ public class Main {
 
     public static String cipher(String text, List<Integer> key, boolean isCrypt) {
         StringBuilder result = new StringBuilder();
-        if (!isCrypt) {
-            Character[][] table = tableGetter(text, key);
-            if (table == null) return null;
-            for (int i = 0; i < table.length; i++) {
-                result.append(Arrays.stream(table[key.get(i)]).map(Object::toString).collect(Collectors.joining()));
-            }
-        } else {
-            if (key == null){
-                System.out.println("Ошибка: Недопустимые индексы!");
-                return null;
-            }
-            int blocksCount = text.length() / key.size();
-            for (int i = 0; i < blocksCount; i++) {
-                for (int j = 0; j < key.size(); j++) {
-                    result.append(text.charAt(i + blocksCount * key.indexOf(j)));
+        if (key == null  || notValidKey(key)) {
+            System.out.println("Ошибка: Недопустимые индексы!");
+            return null;
+        }
+        Character[][] blocks = tableGetter(text, key);
+        Character[][] block;
+        for (Character[] characters : blocks) {
+            if (!isCrypt) {
+                block = blockToTable(key, characters);
+                for (Integer colIndex : key) {
+                    for (int row = 0; row < BLOCK_CONST; row++) {
+                        result.append(block[row][colIndex]);
+                    }
                 }
+            } else {
+                int blockSize = key.size() * BLOCK_CONST;
+                if (text.length() % blockSize != 0) {
+                    System.out.println("Ошибка: длина шифротекста должна быть кратна " + blockSize);
+                    return null;
+                }
+                result.append(decryptBlock(key, characters));
             }
-        } return !isCrypt ? result.toString() : result.toString().replaceAll("\0", "");
+        }
+
+        return !isCrypt ? result.toString() : result.toString().replaceAll(PADDING_CHAR, "");
     }
 
     public static List<Integer> toIntegerList(String[] lst) {
@@ -74,35 +82,58 @@ public class Main {
     }
 
     public static Character[][] tableGetter(String text, List<Integer> key) {
-        if (text == null || key == null) {
-            System.out.println("Ошибка: null параметры!");
-            return null;
-        }
-
-        if (!isValidKey(key)) {
-            System.out.println("Ошибка: Недопустимые индексы!");
-            return null;
-        }
 
         int keyLen = key.size();
+        int blockSize = keyLen * BLOCK_CONST;
         StringBuilder textBuilder = new StringBuilder(text);
-        while (textBuilder.length() % keyLen != 0) {
-            textBuilder.append("\0");
+
+        while (textBuilder.length() % (blockSize) != 0) {
+            textBuilder.append(PADDING_CHAR);
         }
         text = textBuilder.toString();
-        int blocksCount = text.length() / keyLen;
-        Character[][] result = new Character[keyLen][blocksCount];
+        int blocksCount = text.length() / (blockSize);
+        Character[][] result = new Character[blocksCount][blockSize];
         for (int i = 0; i < blocksCount; i++) {
-            for (int j = 0; j < keyLen; j++) {
-                result[j][i] = text.charAt(i * keyLen + j);
+            for (int j = 0; j < blockSize; j++) {
+                result[i][j] = text.charAt(i * blockSize + j);
             }
         }
-        Arrays.stream(result).forEach(elem -> System.out.println(Arrays.toString(elem)));
         return result;
     }
 
-    public static boolean isValidKey(List<Integer> key) {
-        return !key.isEmpty() && key.stream().noneMatch(i -> i >= key.size() || i < 0) && key.stream().distinct().toArray().length == key.size();
+    public static boolean notValidKey(List<Integer> key) {
+        return key == null || key.isEmpty() || key.stream().anyMatch(i -> i >= key.size() || i < 0) || key.stream().distinct().count() != key.size();
+    }
+
+    public static Character[][] blockToTable(List<Integer> key, Character[] block) {
+        Character[][] result = new Character[BLOCK_CONST][key.size()];
+        int count = 0;
+        for (int i = 0; i < BLOCK_CONST; i++) {
+            for (int j = 0; j < key.size(); j++) {
+                result[i][j] = block[count];
+                count++;
+            }
+        }
+        return result;
+    }
+
+    public static String decryptBlock(List<Integer> key, Character[] block) {
+        int keyLen = key.size();
+        Character[][] table = new Character[BLOCK_CONST][keyLen];
+        int pos = 0;
+        for (int colIndex : key) {
+            for (int row = 0; row < BLOCK_CONST; row++) {
+                table[row][colIndex] = block[pos];
+                pos++;
+            }
+        }
+        StringBuilder result = new StringBuilder();
+        for (int row = 0; row < BLOCK_CONST; row++) {
+            for (int col = 0; col < keyLen; col++) {
+                result.append(table[row][col]);
+            }
+        }
+        return result.toString();
     }
 
     public static void printMenu() {
