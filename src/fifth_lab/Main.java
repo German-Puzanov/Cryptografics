@@ -72,7 +72,6 @@ public class Main {
             }
         }
         return !isCrypt ? result.toString() : result.toString().replaceAll("\0", "");
-
     }
 
     public static List<Integer> toIntegerList(String[] lst) {

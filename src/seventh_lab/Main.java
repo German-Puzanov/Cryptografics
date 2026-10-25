@@ -4,122 +4,131 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.Scanner;
-
 
 public class Main {
 
     private static final Path OUTPUT_PATH = Path.of("src/output/output.txt");
     private static final Path INPUT_PATH = Path.of("src/input/input.txt");
 
-    public static void main(String[] args) throws IOException {
-        if (!Files.exists(INPUT_PATH) || !Files.exists(OUTPUT_PATH)) {
-            Files.createFile(OUTPUT_PATH);
-            Files.createFile(INPUT_PATH);
+    public static void main(String[] args) {
+        try {
+            Files.createDirectories(INPUT_PATH.getParent());
+            Files.createDirectories(OUTPUT_PATH.getParent());
+            if (!Files.exists(INPUT_PATH)) Files.createFile(INPUT_PATH);
+            if (!Files.exists(OUTPUT_PATH)) Files.createFile(OUTPUT_PATH);
+        } catch (IOException e) {
+            System.err.println("Ошибка инициализации: " + e.getMessage());
+            return;
         }
 
         Scanner scanner = new Scanner(System.in);
-        String command;
         while (true) {
             printMenu();
-            command = scanner.nextLine().trim();
+            String command = scanner.nextLine().trim();
 
             switch (command) {
                 case "1" -> {
-                    System.out.println("""
-                            1. Текстовый ввод
-                            2. Ввод битов""");
-                    command = scanner.nextLine();
-                    switch (command) {
-                        case "1" -> {
-                            System.out.print("Введите текст: ");
-                            String text = scanner.nextLine();
-                            System.out.print("Введите ключ: ");
-                            String key = scanner.nextLine();
-                            String output = cipherFromConsole(text, getByteKey(key));
-                            System.out.printf("Результат шифрования:%s\n", output);
-                        }
-                        case "2" -> {
+                    System.out.println("1. Шифровать\n2. Расшифровать");
+                    String mode = scanner.nextLine().trim();
+                    boolean isEncrypt = mode.equals("1");
 
-                        }
-                    }
-
-                }
-                case "2" -> {
-                    System.out.print("Введите путь к файлу: ");
-                    String pathIn = scanner.nextLine();
-                    System.out.print("Введите путь к файлу результату: ");
-                    String pathOut = scanner.nextLine();
+                    System.out.print("Введите текст: ");
+                    String text = scanner.nextLine();
                     System.out.print("Введите ключ: ");
                     String key = scanner.nextLine();
-                    cipherFromFile(pathIn, pathOut, getByteKey(key));
-                    System.out.println("Результат готов!");
+
+                    String output = processConsole(text, getByteKey(key), isEncrypt);
+                    System.out.printf("Результат: %s\n", output);
+                }
+                case "2" -> {
+                    System.out.println("1. Шифровать\n2. Расшифровать");
+                    String mode = scanner.nextLine().trim();
+                    boolean isEncrypt = mode.equals("1");
+
+                    System.out.print("Введите путь к файлу: ");
+                    String pathIn = scanner.nextLine().trim();
+                    System.out.print("Введите путь к файлу результату: ");
+                    String pathOut = scanner.nextLine().trim();
+                    System.out.print("Введите ключ: ");
+                    String key = scanner.nextLine();
+
+                    processFile(pathIn, pathOut, getByteKey(key), isEncrypt);
                 }
                 case "3" -> {
                     System.out.println("До свидания!");
                     return;
                 }
+                default -> System.out.println("Неверная команда.");
             }
         }
-
     }
 
-    public static void cipherFromFile(String pathIn, String pathOut, byte[] key) {
-        byte[] buffer = new byte[4096];
-        pathIn = (pathIn == null || pathIn.isEmpty())
-                ? INPUT_PATH.toString()
-                : pathIn;
+    public static void processFile(String pathIn, String pathOut, byte[] key, boolean isEncrypt) {
+        Path inPath = (pathIn == null || pathIn.isEmpty()) ? INPUT_PATH : Path.of(pathIn);
+        Path outPath = (pathOut == null || pathOut.isEmpty()) ? OUTPUT_PATH : Path.of(pathOut);
 
-        pathOut = (pathOut == null || pathOut.isEmpty())
-                ? OUTPUT_PATH.toString()
-                : pathOut;
+        if (inPath.toAbsolutePath().equals(outPath.toAbsolutePath())) {
+            System.out.println("Ошибка: Входной и выходной файлы не могут быть одинаковыми!");
+            return;
+        }
 
-        try (InputStream in = new FileInputStream(pathIn);
-             OutputStream os = new BufferedOutputStream(new FileOutputStream(pathOut))) {
-            int b;
-            int count = 0;
-            while ((b = in.read()) != -1) {
-                for (int i = 0; i < b; i++) {
-                    buffer[i] = (byte) (buffer[i] ^ key[count % key.length]);
-                    count++;
+        if (!Files.exists(inPath)) {
+            System.out.println("Ошибка: Входной файл не найден: " + inPath.toAbsolutePath());
+            return;
+        }
+
+        try {
+            if (isEncrypt) {
+                byte[] fileBytes = Files.readAllBytes(inPath);
+                for (int i = 0; i < fileBytes.length; i++) {
+                    fileBytes[i] = (byte) (fileBytes[i] ^ key[i % key.length]);
                 }
-                os.write(buffer, 0, b);
+                String base64Result = Base64.getEncoder().encodeToString(fileBytes);
+                Files.writeString(outPath, base64Result, StandardCharsets.UTF_8);
+            } else {
+                String base64Content = Files.readString(inPath, StandardCharsets.UTF_8).trim();
+                byte[] fileBytes = Base64.getDecoder().decode(base64Content);
+                for (int i = 0; i < fileBytes.length; i++) {
+                    fileBytes[i] = (byte) (fileBytes[i] ^ key[i % key.length]);
+                }
+                Files.write(outPath, fileBytes);
             }
-        } catch (IOException e) {
-            throw new RuntimeException();
+            System.out.println("Результат готов!");
+        } catch (IOException | IllegalArgumentException e) {
+            System.out.println("Ошибка обработки файла: " + e.getMessage());
         }
     }
 
-    public static String cipherFromConsole(String text, byte[] key) {
-        StringBuilder result = new StringBuilder();
-        byte[] byteCode = text.getBytes(StandardCharsets.UTF_8);
-        byte[] buffer = new byte[byteCode.length];
-        for (int i = 0; i < byteCode.length; i++) {
-            buffer[i % buffer.length] = (byte) (byteCode[i] ^ key[i % key.length]);
+    public static String processConsole(String text, byte[] key, boolean isEncrypt) {
+        byte[] data;
+        if (!isEncrypt) {
+            try {
+                data = Base64.getDecoder().decode(text.trim());
+            } catch (IllegalArgumentException e) {
+                return "Ошибка: Неверный формат Base64";
+            }
+        } else {
+            data = text.getBytes(StandardCharsets.UTF_8);
         }
-        result.append(bytesToString(buffer));
-        return result.toString();
-    }
 
-    public static String bytesToString(byte[] bytes) {
-        StringBuilder result = new StringBuilder();
-        for (byte b : bytes) {
-            if (b == 0) break;
-            result.append((char) b);
+        for (int i = 0; i < data.length; i++) {
+            data[i] = (byte) (data[i] ^ key[i % key.length]);
         }
-        return result.toString();
+
+        return isEncrypt ? Base64.getEncoder().encodeToString(data) : new String(data, StandardCharsets.UTF_8);
     }
 
     public static byte[] getByteKey(String key) {
-        return key.getBytes(StandardCharsets.UTF_8);
+        if (key == null || key.trim().isEmpty()) {
+            return new byte[]{0};
+        }
+        return key.trim().getBytes(StandardCharsets.UTF_8);
     }
 
-
     public static void printMenu() {
-        System.out.println("""
-                1. Зашифровать/расшифровать сообщение из консоли
-                2. Зашифровать/расшифровать сообщение из файла
-                3. выход
-                """);
+        System.out.println("\n1. Работа с консолью\n2. Работа с файлом\n3. Выход");
+        System.out.print("Выберите действие: ");
     }
 }
