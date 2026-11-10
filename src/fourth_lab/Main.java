@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         String command;
 
-        showVigenereTable();
+//        showVigenereTable();
         while (true) {
             printMenu();
             command = scanner.nextLine().trim();

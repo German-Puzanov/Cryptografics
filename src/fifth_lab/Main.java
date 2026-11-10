@@ -54,7 +54,7 @@ public class Main {
         }
         StringBuilder textBuilder = new StringBuilder(text);
         while (textBuilder.length() % key.size() != 0) {
-            textBuilder.append("\0");
+            textBuilder.append("~");
         }
 
         text = textBuilder.toString();
@@ -71,8 +71,7 @@ public class Main {
                 }
             }
         }
-        return !isCrypt ? result.toString() : result.toString().replaceAll("\0", "");
-
+        return !isCrypt ? result.toString() : result.toString().replaceAll("~", "");
     }
 
     public static List<Integer> toIntegerList(String[] lst) {

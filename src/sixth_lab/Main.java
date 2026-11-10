@@ -51,7 +51,7 @@ public class Main {
             return null;
         }
 
-        if (text.length() % (key.size() * BLOCK_CONST) != 0) {
+        if (text.length() % (key.size() * BLOCK_CONST) != 0 && isCrypt) {
             System.out.println("Ошибка: длина шифротекста должна быть кратна " + key.size() * BLOCK_CONST);
             return null;
         }
