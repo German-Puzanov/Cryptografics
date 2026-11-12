@@ -18,8 +18,6 @@ public class Main {
     private static final Path INPUT_PATH = Path.of("src/input/input.txt");
 
     public static void main(String[] args) {
-
-
         try {
             Files.createDirectories(INPUT_PATH.getParent());
             Files.createDirectories(OUTPUT_PATH.getParent());
@@ -66,9 +64,9 @@ public class Main {
                             }
                             case "2" -> {
                                 System.out.println("Введите сообщение: ");
-                                byte[] text = scanner.nextLine().getBytes(StandardCharsets.UTF_8);
+                                byte[] text = scanner.nextLine().getBytes(java.nio.charset.Charset.forName("Windows-1251"));
                                 System.out.print("Введите гамму: ");
-                                byte[] gamma = scanner.nextLine().getBytes(StandardCharsets.UTF_8);
+                                byte[] gamma = scanner.nextLine().getBytes(java.nio.charset.Charset.forName("Windows-1251"));
 
                                 gamma = correctGamma(text.length, gamma);
 
@@ -78,7 +76,7 @@ public class Main {
 
                                 byte[] output = processConsole(text, gamma);
                                 System.out.println("Результат(bin): " + IntStream.range(0, output.length).mapToObj(i -> byteToCorrectFormat(output[i])).collect(Collectors.joining(" ")));
-                                System.out.println("Результат:      " + new String(output, StandardCharsets.UTF_8));
+                                System.out.println("Результат:      " + new String(output, java.nio.charset.Charset.forName("Windows-1251")));
                             }
                         }
                     }
@@ -166,8 +164,6 @@ public class Main {
         return newGamma;
 
     }
-
-
     public static void printMenu() {
         System.out.println("\n1. Работа с консолью\n2. Работа с файлом\n3. Выход");
         System.out.print("Выберите действие: ");
