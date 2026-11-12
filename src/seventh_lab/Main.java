@@ -1,9 +1,6 @@
 package seventh_lab;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,80 +11,51 @@ import java.util.stream.IntStream;
 
 public class Main {
 
-    private static final Path OUTPUT_PATH = Path.of("src/output/output.txt");
-    private static final Path INPUT_PATH = Path.of("src/input/input.txt");
-
     public static void main(String[] args) {
-        try {
-            Files.createDirectories(INPUT_PATH.getParent());
-            Files.createDirectories(OUTPUT_PATH.getParent());
-            if (!Files.exists(INPUT_PATH)) Files.createFile(INPUT_PATH);
-            if (!Files.exists(OUTPUT_PATH)) Files.createFile(OUTPUT_PATH);
-        } catch (IOException e) {
-            System.out.println("Ошибка инициализации: " + e.getMessage());
-            return;
-        }
-
         Scanner scanner = new Scanner(System.in);
+        System.err.println("ШИФРОВАНИЕ ГАММИРОВАНИЕМ");
         while (true) {
             printMenu();
             String command = scanner.nextLine();
             try {
                 switch (command) {
                     case "1" -> {
-                        System.out.println("""
-                                Режим ввода:
-                                1. Байты
-                                2. Символы""");
-                        command = scanner.nextLine();
-                        switch (command) {
-                            case "1" -> {
-                                System.out.println("Введите сообщение (байты): ");
-                                List<Byte> text = Arrays.stream(scanner.nextLine().split(" ")).map(s -> (byte) Integer.parseInt(s, 2)).toList();
-                                System.out.print("Введите гамму (байты): ");
-                                List<Byte> gamma = Arrays.stream(scanner.nextLine().split(" ")).map(s -> (byte) Integer.parseInt(s, 2)).toList();
 
-                                gamma = correctGamma(text.size(), gamma);
+                        System.out.println("Введите сообщение (байты): ");
+                        List<Byte> text = Arrays.stream(scanner.nextLine().split(" ")).map(s -> (byte) Integer.parseInt(s, 2)).toList();
+                        System.out.print("Введите гамму (байты): ");
+                        List<Byte> gamma = Arrays.stream(scanner.nextLine().split(" ")).map(s -> (byte) Integer.parseInt(s, 2)).toList();
 
-                                System.out.println("Вход:            " + text.stream().map(Main::byteToCorrectFormat).collect(Collectors.joining(" ")));
-                                System.out.println("Гамма:           " + gamma.stream().map(Main::byteToCorrectFormat).collect(Collectors.joining(" ")));
+                        gamma = correctGamma(text.size(), gamma);
 
-                                String output = processConsole(text, gamma);
-                                System.out.printf("Результат(bin): %s\n", output);
+                        System.out.println("Вход:            " + text.stream().map(Main::byteToCorrectFormat).collect(Collectors.joining(" ")));
+                        System.out.println("Гамма:           " + gamma.stream().map(Main::byteToCorrectFormat).collect(Collectors.joining(" ")));
 
-                                String[] binStrings = output.split(" ");
-                                byte[] resultBytes = new byte[binStrings.length];
-                                for (int i = 0; i < binStrings.length; i++) {
-                                    resultBytes[i] = (byte) Integer.parseInt(binStrings[i], 2);
-                                }
-                                System.out.println("Результат:      " + new String(resultBytes, StandardCharsets.UTF_8));
-                            }
-                            case "2" -> {
-                                System.out.println("Введите сообщение: ");
-                                byte[] text = scanner.nextLine().getBytes(java.nio.charset.Charset.forName("Windows-1251"));
-                                System.out.print("Введите гамму: ");
-                                byte[] gamma = scanner.nextLine().getBytes(java.nio.charset.Charset.forName("Windows-1251"));
+                        String output = processConsole(text, gamma);
+                        System.out.printf("Результат(bin): %s\n", output);
 
-                                gamma = correctGamma(text.length, gamma);
-
-                                System.out.println("Вход (байты):   " + IntStream.range(0, text.length).mapToObj(i -> byteToCorrectFormat(text[i])).collect(Collectors.joining(" ")));
-                                byte[] finalGamma = gamma;
-                                System.out.println("Гамма (байты):  " + IntStream.range(0, gamma.length).mapToObj(i -> byteToCorrectFormat(finalGamma[i])).collect(Collectors.joining(" ")));
-
-                                byte[] output = processConsole(text, gamma);
-                                System.out.println("Результат(bin): " + IntStream.range(0, output.length).mapToObj(i -> byteToCorrectFormat(output[i])).collect(Collectors.joining(" ")));
-                                System.out.println("Результат:      " + new String(output, java.nio.charset.Charset.forName("Windows-1251")));
-                            }
+                        String[] binStrings = output.split(" ");
+                        byte[] resultBytes = new byte[binStrings.length];
+                        for (int i = 0; i < binStrings.length; i++) {
+                            resultBytes[i] = (byte) Integer.parseInt(binStrings[i], 2);
                         }
+                        System.out.println("Результат:      " + new String(resultBytes, java.nio.charset.Charset.forName("Windows-1251")));
                     }
                     case "2" -> {
-                        System.out.print("Введите путь к файлу: ");
-                        String pathIn = scanner.nextLine().trim();
-                        System.out.print("Введите путь к файлу результату: ");
-                        String pathOut = scanner.nextLine().trim();
+                        System.out.println("Введите сообщение: ");
+                        byte[] text = scanner.nextLine().getBytes(java.nio.charset.Charset.forName("Windows-1251"));
                         System.out.print("Введите гамму: ");
-                        Byte[] gamma = (Byte[]) Arrays.stream(scanner.nextLine().split(" ")).map(String::getBytes).toArray();
-                        processFile(pathIn, pathOut, gamma);
+                        byte[] gamma = scanner.nextLine().getBytes(java.nio.charset.Charset.forName("Windows-1251"));
+
+                        gamma = correctGamma(text.length, gamma);
+
+                        System.out.println("Вход (байты):   " + IntStream.range(0, text.length).mapToObj(i -> byteToCorrectFormat(text[i])).collect(Collectors.joining(" ")));
+                        byte[] finalGamma = gamma;
+                        System.out.println("Гамма (байты):  " + IntStream.range(0, gamma.length).mapToObj(i -> byteToCorrectFormat(finalGamma[i])).collect(Collectors.joining(" ")));
+
+                        byte[] output = processConsole(text, gamma);
+                        System.out.println("Результат(bin): " + IntStream.range(0, output.length).mapToObj(i -> byteToCorrectFormat(output[i])).collect(Collectors.joining(" ")));
+                        System.out.println("Результат:      " + new String(output, java.nio.charset.Charset.forName("Windows-1251")));
                     }
                     case "3" -> {
                         System.out.println("До свидания!");
@@ -95,34 +63,10 @@ public class Main {
                     }
                     default -> System.out.println("Неверная команда.");
                 }
-            } catch (Exception e) {
+            } catch (
+                    Exception e) {
                 System.out.println(e.getMessage());
             }
-        }
-    }
-
-    public static void processFile(String pathIn, String pathOut, Byte[] key) {
-        Path inPath = (pathIn == null || pathIn.isEmpty()) ? INPUT_PATH : Path.of(pathIn);
-        Path outPath = (pathOut == null || pathOut.isEmpty()) ? OUTPUT_PATH : Path.of(pathOut);
-
-        if (inPath.toAbsolutePath().equals(outPath.toAbsolutePath())) {
-            System.out.println("Ошибка: Входной и выходной файлы не могут быть одинаковыми!");
-            return;
-        }
-
-        if (!Files.exists(inPath)) {
-            System.out.println("Ошибка: Входной файл не найден: " + inPath.toAbsolutePath());
-            return;
-        }
-        try {
-            byte[] fileBytes = Files.readAllBytes(inPath);
-            for (int i = 0; i < fileBytes.length; i++) {
-                fileBytes[i] = (byte) (fileBytes[i] ^ key[i]);
-            }
-            Files.write(outPath, fileBytes);
-            System.out.println("Результат готов!");
-        } catch (IOException | IllegalArgumentException e) {
-            System.out.println("Ошибка обработки файла: " + e.getMessage());
         }
     }
 
@@ -155,17 +99,17 @@ public class Main {
         return newGamma;
     }
 
-    public static List<Byte> correctGamma(int len, List<Byte> gamma){
+    public static List<Byte> correctGamma(int len, List<Byte> gamma) {
         int gammaSize = gamma.size();
         List<Byte> newGamma = new ArrayList<>();
         for (int i = 0; i < len; i++) {
             newGamma.add(gamma.get(i % gammaSize));
         }
         return newGamma;
-
     }
+
     public static void printMenu() {
-        System.out.println("\n1. Работа с консолью\n2. Работа с файлом\n3. Выход");
+        System.out.println("1. Бинарный ввод \n2. Символьный ввод\n3. Выход");
         System.out.print("Выберите действие: ");
     }
 }
