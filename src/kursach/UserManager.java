@@ -1,6 +1,7 @@
 package kursach;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class UserManager {
         if (user == null || !users.contains(user)) throw new IllegalArgumentException("No such user!");
         if (!password.equals(user.getPassword())) throw new IllegalArgumentException("Wrong password!");
         users.remove(user);
-        System.out.println("User " + user.getName() + "successfully removed!");
+        System.out.println("User " + user.getName() + " successfully removed!");
     }
 
     public User getUserByName(String name) {
@@ -63,8 +64,8 @@ public class UserManager {
         System.out.print("Введите имя: ");
         String name = scanner.nextLine().trim();
         var keys = KeyGenerator.generateKey();
-        List<Long> openKeys = keys.get(KeyGenerator.OPEN_KEY_NAME);
-        List<Long> secretKeys = keys.get(KeyGenerator.SECRET_KEY_NAME);
+        List<BigInteger> openKeys = keys.get(KeyGenerator.OPEN_KEY_NAME);
+        List<BigInteger> secretKeys = keys.get(KeyGenerator.SECRET_KEY_NAME);
         System.out.print("Введите пароль: ");
         String password = scanner.nextLine().trim();
         return new User(name, openKeys, secretKeys, password);
@@ -82,10 +83,14 @@ public class UserManager {
 
 
     public void loadUsers(Path path) throws IOException {
-        if (Files.size(path) == 0) return;
-        if (!Files.exists(path) || !Files.isReadable(path)) {
+
+        if (!Files.exists(path)) {
+            Files.createDirectories(path.getParent());
             Files.createFile(path);
+            return;
         }
+        if (Files.size(path) == 0) return;
+
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path.toFile()))) {
             users = (List<User>) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {

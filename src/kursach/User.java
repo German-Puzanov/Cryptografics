@@ -1,20 +1,19 @@
 package kursach;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.List;
-import java.util.Map;
 
 public class User implements Serializable {
-
     private String name;
-    private List<Long> openKey;
-    private List<Long> secretKey;
-    private transient String password;
-    private boolean isAuthorised = false;
+    private List<BigInteger> openKey;
+    private List<BigInteger> secretKey;
+    private String password;
+    private transient boolean isAuthorised = false;
     private static final long serialVersionUID = 1L;
 
 
-    public User(String name, List<Long> openKey, List<Long> secretKey, String password) {
+    public User(String name, List<BigInteger> openKey, List<BigInteger> secretKey, String password) {
         setName(name);
         setOpenKey(openKey);
         setSecretKey(secretKey);
@@ -30,20 +29,20 @@ public class User implements Serializable {
         this.name = name;
     }
 
-    public List<Long> getOpenKey() {
+    public List<BigInteger> getOpenKey() {
         return openKey;
     }
 
-    public void setOpenKey(List<Long> openKey) {
+    public void setOpenKey(List<BigInteger> openKey) {
         if (openKey == null) throw new IllegalArgumentException("Invalid openKey");
         this.openKey = openKey;
     }
 
-    public List<Long> getSecretKey() {
+    public List<BigInteger> getSecretKey() {
         return secretKey;
     }
 
-    public void setSecretKey(List<Long> secretKey) {
+    public void setSecretKey(List<BigInteger> secretKey) {
         if (secretKey == null) throw new IllegalArgumentException("Invalid secretKey");
         this.secretKey = secretKey;
     }
@@ -57,8 +56,8 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public boolean isAuthorised() {
-        return isAuthorised;
+    public boolean notAuthorised() {
+        return !isAuthorised;
     }
 
     public void setAuthorised(boolean authorised) {
@@ -70,6 +69,6 @@ public class User implements Serializable {
         return "User{" +
                 "name='" + name + '\'' +
                 ", openKey=" + openKey +
-                ", secretKey=" + (isAuthorised ? secretKey : "?????????????");
+                ", secretKey=" + (isAuthorised ? secretKey : "?????????????") + "}";
     }
 }

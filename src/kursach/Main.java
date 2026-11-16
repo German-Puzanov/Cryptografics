@@ -1,6 +1,7 @@
 package kursach;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -53,14 +54,14 @@ public class Main {
 
                         User user = manager.getUserByName(name);
                         if (user == null) throw new IllegalArgumentException("No such user!");
-                        if (!user.isAuthorised())
+                        if (user.notAuthorised())
                             throw new IllegalArgumentException("You have no secret key of this user, try authorise at first!");
 
-                        long hash = Cipher.hashAlgorithmFNV(path);
-                        long signature = Cipher.cipher(hash, user.getSecretKey().get(0), user.getSecretKey().get(1));
+                        BigInteger hash = Cipher.hashAlgorithmFNV(path);
+                        BigInteger signature = Cipher.cipher(hash, user.getSecretKey().get(0), user.getSecretKey().get(1));
 
-                        System.out.println("Хэш документа: " + hash);
-                        System.out.println("Подпись пользователя " + user.getName() + ": " + signature);
+                        System.out.println("Хэш документа (FNV-256): " + hash.toString(16));
+                        System.out.println("Подпись пользователя " + user.getName() + ": " + signature.toString(16));
                     }
                     case "5" -> {
                         System.out.print("Введите путь к проверяемому документу: ");
@@ -71,21 +72,28 @@ public class Main {
                         System.out.print("Введите имя человека, подписавшего документ: ");
                         String name = scanner.nextLine().trim();
 
-                        System.out.print("Введите подпись: ");
-                        long signature = Long.parseLong(scanner.nextLine());
+                        System.out.print("Введите подпись (в HEX-формате): ");
+                        String signatureHex = scanner.nextLine().trim();
+
+                        BigInteger signature;
+                        try {
+                            signature = new BigInteger(signatureHex, 16);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException("Ошибка: подпись должна быть в HEX-формате");
+                        }
 
                         User user = manager.getUserByName(name);
                         if (user == null) throw new IllegalArgumentException("No such user!");
 
-                        long hash = Cipher.hashAlgorithmFNV(path);
-                        long checkHash = Cipher.cipher(signature, user.getOpenKey().get(0), user.getOpenKey().get(1));
-                        boolean valid = (hash == checkHash);
+                        BigInteger hash = Cipher.hashAlgorithmFNV(path);
+                        BigInteger checkHash = Cipher.cipher(signature, user.getOpenKey().get(0), user.getOpenKey().get(1));
+                        boolean valid = (hash.equals(checkHash));
 
-                        System.out.println("Хэш документа: " + hash);
-                        System.out.println("Расшифрованная подпись: " + checkHash);
+                        System.out.println("Хэш документа: " + hash.toString(16));
+                        System.out.println("Расшифрованная подпись: " + checkHash.toString(16));
                         System.out.println("Подпись пользователя " + user.getName() + ": "
                                 + (valid ? "Действительна!" : "Недействительна!")
-                                + " (" + checkHash + (valid ? " == " : " != ") + hash + ")");
+                                + " (" + checkHash.toString(16) + (valid ? " == " : " != ") + hash.toString(16) + ")");
                     }
                     case "6" -> {
                         System.out.print("Введите сообщение: ");
@@ -95,36 +103,44 @@ public class Main {
                         String name = scanner.nextLine().trim();
                         User user = manager.getUserByName(name);
                         if (user == null) throw new IllegalArgumentException("No such user!");
-                        if (!user.isAuthorised())
+                        if (user.notAuthorised())
                             throw new IllegalArgumentException("You have no secret key of this user, try authorise at first!");
 
-                        long hash = Cipher.hashAlgorithmFNV(message);
-                        long signature = Cipher.cipher(hash, user.getSecretKey().get(0), user.getSecretKey().get(1));
+                        BigInteger hash = Cipher.hashAlgorithmFNV(message);
+                        BigInteger signature = Cipher.cipher(hash, user.getSecretKey().get(0), user.getSecretKey().get(1));
 
-                        System.out.println("Хэш сообщения: " + hash);
-                        System.out.println("Подпись пользователя " + user.getName() + ": " + signature);
+                        System.out.println("Хэш документа (FNV-256): " + hash.toString(16));
+                        System.out.println("Подпись пользователя " + user.getName() + ": " + signature.toString(16));
                     }
                     case "7" -> {
                         System.out.print("Введите сообщение: ");
                         String message = scanner.nextLine();
 
-                        System.out.print("Введите имя подписавшего: ");
+                        System.out.print("Введите имя человека, подписавшего документ: ");
                         String name = scanner.nextLine().trim();
+
+                        System.out.print("Введите подпись (в HEX-формате): ");
+                        String signatureHex = scanner.nextLine().trim();
+
+                        BigInteger signature;
+                        try {
+                            signature = new BigInteger(signatureHex, 16);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException("Ошибка: подпись должна быть в HEX-формате");
+                        }
+
                         User user = manager.getUserByName(name);
                         if (user == null) throw new IllegalArgumentException("No such user!");
 
-                        System.out.print("Введите подпись: ");
-                        long signature = Long.parseLong(scanner.nextLine());
+                        BigInteger hash = Cipher.hashAlgorithmFNV(message);
+                        BigInteger checkHash = Cipher.cipher(signature, user.getOpenKey().get(0), user.getOpenKey().get(1));
+                        boolean valid = (hash.equals(checkHash));
 
-                        long hash = Cipher.hashAlgorithmFNV(message);
-                        long checkHash = Cipher.cipher(signature, user.getOpenKey().get(0), user.getOpenKey().get(1));
-                        boolean valid = (hash == checkHash);
-
-                        System.out.println("Хэш сообщения: " + hash);
-                        System.out.println("Расшифрованная подпись: " + checkHash);
+                        System.out.println("Хэш сообщения: " + hash.toString(16));
+                        System.out.println("Расшифрованная подпись: " + checkHash.toString(16));
                         System.out.println("Подпись пользователя " + user.getName() + ": "
                                 + (valid ? "Действительна!" : "Недействительна!")
-                                + " (" + checkHash + (valid ? " == " : " != ") + hash + ")");
+                                + " (" + checkHash.toString(16) + (valid ? " == " : " != ") + hash.toString(16) + ")");
                     }
                     case "8" -> manager.showUsers();
                     case "0" -> {

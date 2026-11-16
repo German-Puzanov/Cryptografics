@@ -9,44 +9,46 @@ import java.nio.file.Path;
 
 public class Cipher {
 
-    public static long cipher(long message, long exponent, long num) {
-        BigInteger messageBig = BigInteger.valueOf(message);
-        BigInteger openExponentBig = BigInteger.valueOf(exponent);
-        BigInteger numBig = BigInteger.valueOf(num);
+    private static final BigInteger FNV_OFFSET_BASIS =
+            new BigInteger("dd268dbcaac550362d98c384c4e576ccc8b1536847b6bbb31023b4c8caee0535", 16);
 
-        return messageBig.modPow(openExponentBig, numBig).longValue();
+    private static final BigInteger FNV_PRIME =
+            BigInteger.ONE.shiftLeft(168)
+                    .add(BigInteger.ONE.shiftLeft(8))
+                    .add(BigInteger.valueOf(0x63));
+
+    private static final BigInteger MASK_256 =
+            BigInteger.ONE.shiftLeft(256).subtract(BigInteger.ONE);
+
+    public static BigInteger cipher(BigInteger message, BigInteger exponent, BigInteger num) {
+        return message.modPow(exponent, num);
     }
 
-    public static long hashAlgorithmFNV(String s) {
-        int basis = 0x811C9DC5;
-        int prime = 0x01000193;
-        byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
-
-        for (byte b : bytes) {
-            basis ^= ((b & 0xFF));
-            basis *= prime;
+    public static BigInteger hashAlgorithmFNV(String s) {
+        BigInteger hash = FNV_OFFSET_BASIS;
+        for (byte b : s.getBytes(StandardCharsets.UTF_8)) {
+            hash = hash.xor(BigInteger.valueOf(b & 0xFF));
+            hash = hash.multiply(FNV_PRIME).and(MASK_256);
         }
-        return basis & 0xFFFFFFFFL;
+        return hash;
     }
 
-    public static long hashAlgorithmFNV(Path path) {
-        int basis = 0x811C9DC5;
-        int prime = 0x01000193;
-
+    public static BigInteger hashAlgorithmFNV(Path path) {
+        BigInteger hash = FNV_OFFSET_BASIS;
         byte[] buf = new byte[32 * 1024];
-
         try (InputStream in = Files.newInputStream(path)) {
             int n;
             while ((n = in.read(buf)) != -1) {
                 for (int i = 0; i < n; i++) {
-                    basis ^= (buf[i] & 0xFF);
-                    basis *= prime;
+                    hash = hash.xor(BigInteger.valueOf(buf[i] & 0xFF));
+                    hash = hash.multiply(FNV_PRIME).and(MASK_256); // mod 2^256
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return basis & 0xFFFFFFFFL;
-    }
+        return hash;
 
+
+    }
 }

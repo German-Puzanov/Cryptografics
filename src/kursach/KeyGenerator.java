@@ -5,30 +5,27 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public class KeyGenerator {
-    private static final long OPEN_EXPONENT = 65537;
+    private static final BigInteger OPEN_EXPONENT = BigInteger.valueOf(65537);
+    private static final int KEY_SIZE = 512;
     static final String OPEN_KEY_NAME = "Open key";
     static final String SECRET_KEY_NAME = "Secret key";
 
-    public static Map<String, List<Long>> generateKey() {
-        Map<String, List<Long>> personalKeys = new HashMap<>();
+    public static Map<String, List<BigInteger>> generateKey() {
+        Map<String, List<BigInteger>> personalKeys = new HashMap<>();
 
-        Random random = new SecureRandom();
-        long firstPrime, secondPrime, eulerFunc;
+        SecureRandom random = new SecureRandom();
+        BigInteger firstPrime, secondPrime, n, eulerFunc, secretExponent;
         do {
-            firstPrime = randomPrime(random);
-            secondPrime = randomPrime(random);
-            eulerFunc = (firstPrime - 1) * (secondPrime - 1);
-        } while (firstPrime == secondPrime || BigInteger.valueOf(eulerFunc).gcd(BigInteger.valueOf(OPEN_EXPONENT)).intValue() != 1);
+            firstPrime = BigInteger.probablePrime(KEY_SIZE / 2, random);
+            secondPrime = BigInteger.probablePrime(KEY_SIZE / 2, random);
+            eulerFunc = firstPrime.subtract(BigInteger.ONE).multiply(secondPrime.subtract(BigInteger.ONE));
+        } while (firstPrime.equals(secondPrime) || !eulerFunc.gcd(OPEN_EXPONENT).equals(BigInteger.ONE));
 
-        long k = 1;
-        while ((k * eulerFunc + 1) % OPEN_EXPONENT != 0) k++;
+        n = firstPrime.multiply(secondPrime);
 
-        long secretExponent = (k * eulerFunc + 1) / OPEN_EXPONENT;
-
-        long n = firstPrime * secondPrime;
+        secretExponent = OPEN_EXPONENT.modInverse(eulerFunc);
 
         personalKeys.put(OPEN_KEY_NAME, List.of(OPEN_EXPONENT, n));
         personalKeys.put(SECRET_KEY_NAME, List.of(secretExponent, n));
@@ -36,17 +33,4 @@ public class KeyGenerator {
         return personalKeys;
     }
 
-    private static long randomPrime(Random random) {
-        return random.longs(OPEN_EXPONENT, 100_000_00).filter(KeyGenerator::isPrime).findFirst().orElseThrow(() -> new IllegalStateException("No prime in range [" + OPEN_EXPONENT + ", 100000)"));
-    }
-
-    public static boolean isPrime(long n) {
-        if (n < 2) return false;
-        for (int i = 2; i <= Math.sqrt(n); i++) {
-            if (n % i == 0) {
-                return false;
-            }
-        }
-        return true;
-    }
 }
