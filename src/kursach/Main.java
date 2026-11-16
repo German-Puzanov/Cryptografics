@@ -5,69 +5,49 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class Main {
 
-    private static final long FIRST_PRIME = 104729;
-    private static final long SECOND_PRIME = 99991;
-    private static final long OPEN_EXPONENT = 65537;
-    private static final String OPEN_KEY_NAME = "Open key";
-    private static final String SECRET_KEY_NAME = "Secret key";
-
-    private static final String FILE_PATH = "src/input/img.png";
+    public static final long FIRST_PRIME = 104729;
+    public static final long SECOND_PRIME = 99991;
+    public static final long OPEN_EXPONENT = 65537;
+    public static final String OPEN_KEY_NAME = "Open key";
+    public static final String SECRET_KEY_NAME = "Secret key";
+    public static final String FILE_PATH = "src/input/img.png";
 
     public static void main(String[] args) throws IOException {
-        // Ключи отправителя (sender) и злоумышленника (attacker)
-        var senderKeys = keyGenerator();
-        var attackerKeys = keyGenerator();
+        UserManager manager = new UserManager();
+        Scanner scanner = new Scanner(System.in);
+        String command;
 
-        // Извлекаем только те ключи, которые реально используются
-        long senderE = senderKeys.get(OPEN_KEY_NAME).get(0);
-        long senderN = senderKeys.get(OPEN_KEY_NAME).get(1);
-        long senderD = senderKeys.get(SECRET_KEY_NAME).get(0);
 
-        long attackerD = attackerKeys.get(SECRET_KEY_NAME).get(0);
-        long attackerN = attackerKeys.get(OPEN_KEY_NAME).get(1);
+        while (true) {
+            manager.printMenu();
+            command = scanner.nextLine();
 
-        long originalHash = hashAlgorithmFNV(Path.of(FILE_PATH));
+            switch (command) {
+                case "1" -> {
 
-        // =========================================================================
-        System.out.println("=== [1] Корректная подпись ===");
-        System.out.println("Смысл: Отправитель подписывает закрытым ключом, получатель проверяет открытым.");
-        long signature = cipher(originalHash, senderD, senderN);
-        long verifiedHash = cipher(signature, senderE, senderN);
-        System.out.printf("Данные: Исходный хэш = %d, Подпись = %d, Результат проверки = %d%n",
-                originalHash, signature, verifiedHash);
-        System.out.println("Вердикт: " + (verifiedHash == originalHash) + "\n");
+                }
+                case "2" -> {
 
-        // =========================================================================
-        System.out.println("=== [2] Подделка подписи ===");
-        System.out.println("Смысл: Злоумышленник подписывает своим закрытым ключом, но получатель проверяет открытым ключом отправителя.");
-        long forgedSignature = cipher(originalHash, attackerD, attackerN);
-        long forgedVerifiedHash = cipher(forgedSignature, senderE, senderN);
-        System.out.printf("Данные: Исходный хэш = %d, Поддельная подпись = %d, Результат проверки = %d%n",
-                originalHash, forgedSignature, forgedVerifiedHash);
-        System.out.println("Вердикт (подделка обнаружена): " + (forgedVerifiedHash != originalHash) + "\n");
+                }
+                case "3" -> {
 
-        // =========================================================================
-        System.out.println("=== [3] Подмена файла ===");
-        System.out.println("Смысл: Злоумышленник меняет файл, но не может обновить оригинальную подпись. Получатель видит несовпадение.");
-        Path tempFile = Path.of("src/input/img_1.png");
-        byte[] data = Files.readAllBytes(Path.of(FILE_PATH));
-        data[data.length / 2] ^= 1;
-        Files.write(tempFile, data);
+                }
+                case "4" -> {
 
-        long tamperedHash = hashAlgorithmFNV(tempFile);
-        Files.deleteIfExists(tempFile);
-
-        System.out.printf("Данные: Старый хэш = %d, Хэш измененного файла = %d%n",
-                originalHash, tamperedHash);
-        System.out.println("Вердикт (подмена обнаружена): " + (verifiedHash != tamperedHash));
+                }
+                case "0" -> {
+                    System.out.println("До новых встреч");
+                    return;
+                }
+            }
+        }
     }
+
+
     public static boolean isPrime(long n) {
         if (n < 2) return false;
         for (int i = 2; i <= Math.sqrt(n); i++) {
@@ -78,9 +58,9 @@ public class Main {
         return true;
     }
 
-    public static long cipher(long message, long openExponent, long num) {
+    public static long cipher(long message, long exponent, long num) {
         BigInteger messageBig = BigInteger.valueOf(message);
-        BigInteger openExponentBig = BigInteger.valueOf(openExponent);
+        BigInteger openExponentBig = BigInteger.valueOf(exponent);
         BigInteger numBig = BigInteger.valueOf(num);
 
         return messageBig.modPow(openExponentBig, numBig).longValue();
