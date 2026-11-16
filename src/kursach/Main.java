@@ -1,126 +1,144 @@
 package kursach;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
 public class Main {
 
-    public static final long FIRST_PRIME = 104729;
-    public static final long SECOND_PRIME = 99991;
-    public static final long OPEN_EXPONENT = 65537;
-    public static final String OPEN_KEY_NAME = "Open key";
-    public static final String SECRET_KEY_NAME = "Secret key";
-    public static final String FILE_PATH = "src/input/img.png";
+    public static final Path SAVES = Path.of("src/kursach/saves.dat");
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         UserManager manager = new UserManager();
         Scanner scanner = new Scanner(System.in);
         String command;
+
+        try {
+            manager.loadUsers(SAVES);
+        } catch (Exception e) {
+            System.out.println("Данные не загружены!");
+        }
 
 
         while (true) {
             manager.printMenu();
             command = scanner.nextLine();
+            try {
+                switch (command) {
+                    case "1" -> manager.addUser(manager.createUser(scanner));
+                    case "2" -> {
+                        System.out.print("Введите имя пользователя: ");
+                        String name = scanner.nextLine();
+                        System.out.print("Введите пароль: ");
+                        String password = scanner.nextLine();
+                        manager.removeUser(manager.getUserByName(name), password);
+                    }
+                    case "3" -> {
+                        System.out.print("Введите имя пользователя: ");
+                        String name = scanner.nextLine();
+                        System.out.print("Введите пароль: ");
+                        String password = scanner.nextLine();
 
-            switch (command) {
-                case "1" -> {
+                        manager.authorisation(name, password);
+                    }
+                    case "4" -> {
+                        System.out.print("Введите путь к документу: ");
+                        Path path = Path.of(scanner.nextLine().trim());
 
-                }
-                case "2" -> {
+                        if (!Files.exists(path)) throw new IllegalArgumentException("Invalid path!");
 
-                }
-                case "3" -> {
+                        System.out.print("Введите имя подписывающего человека: ");
+                        String name = scanner.nextLine().trim();
 
-                }
-                case "4" -> {
+                        User user = manager.getUserByName(name);
+                        if (user == null) throw new IllegalArgumentException("No such user!");
+                        if (!user.isAuthorised())
+                            throw new IllegalArgumentException("You have no secret key of this user, try authorise at first!");
 
+                        long hash = Cipher.hashAlgorithmFNV(path);
+                        long signature = Cipher.cipher(hash, user.getSecretKey().get(0), user.getSecretKey().get(1));
+
+                        System.out.println("Хэш документа: " + hash);
+                        System.out.println("Подпись пользователя " + user.getName() + ": " + signature);
+                    }
+                    case "5" -> {
+                        System.out.print("Введите путь к проверяемому документу: ");
+                        Path path = Path.of(scanner.nextLine().trim());
+
+                        if (!Files.exists(path)) throw new IllegalArgumentException("Invalid path!");
+
+                        System.out.print("Введите имя человека, подписавшего документ: ");
+                        String name = scanner.nextLine().trim();
+
+                        System.out.print("Введите подпись: ");
+                        long signature = Long.parseLong(scanner.nextLine());
+
+                        User user = manager.getUserByName(name);
+                        if (user == null) throw new IllegalArgumentException("No such user!");
+
+                        long hash = Cipher.hashAlgorithmFNV(path);
+                        long checkHash = Cipher.cipher(signature, user.getOpenKey().get(0), user.getOpenKey().get(1));
+                        boolean valid = (hash == checkHash);
+
+                        System.out.println("Хэш документа: " + hash);
+                        System.out.println("Расшифрованная подпись: " + checkHash);
+                        System.out.println("Подпись пользователя " + user.getName() + ": "
+                                + (valid ? "Действительна!" : "Недействительна!")
+                                + " (" + checkHash + (valid ? " == " : " != ") + hash + ")");
+                    }
+                    case "6" -> {
+                        System.out.print("Введите сообщение: ");
+                        String message = scanner.nextLine();
+
+                        System.out.print("Введите имя подписывающего: ");
+                        String name = scanner.nextLine().trim();
+                        User user = manager.getUserByName(name);
+                        if (user == null) throw new IllegalArgumentException("No such user!");
+                        if (!user.isAuthorised())
+                            throw new IllegalArgumentException("You have no secret key of this user, try authorise at first!");
+
+                        long hash = Cipher.hashAlgorithmFNV(message);
+                        long signature = Cipher.cipher(hash, user.getSecretKey().get(0), user.getSecretKey().get(1));
+
+                        System.out.println("Хэш сообщения: " + hash);
+                        System.out.println("Подпись пользователя " + user.getName() + ": " + signature);
+                    }
+                    case "7" -> {
+                        System.out.print("Введите сообщение: ");
+                        String message = scanner.nextLine();
+
+                        System.out.print("Введите имя подписавшего: ");
+                        String name = scanner.nextLine().trim();
+                        User user = manager.getUserByName(name);
+                        if (user == null) throw new IllegalArgumentException("No such user!");
+
+                        System.out.print("Введите подпись: ");
+                        long signature = Long.parseLong(scanner.nextLine());
+
+                        long hash = Cipher.hashAlgorithmFNV(message);
+                        long checkHash = Cipher.cipher(signature, user.getOpenKey().get(0), user.getOpenKey().get(1));
+                        boolean valid = (hash == checkHash);
+
+                        System.out.println("Хэш сообщения: " + hash);
+                        System.out.println("Расшифрованная подпись: " + checkHash);
+                        System.out.println("Подпись пользователя " + user.getName() + ": "
+                                + (valid ? "Действительна!" : "Недействительна!")
+                                + " (" + checkHash + (valid ? " == " : " != ") + hash + ")");
+                    }
+                    case "8" -> manager.showUsers();
+                    case "0" -> {
+                        manager.saveUsers(SAVES);
+                        System.out.println("До новых встреч!");
+                        scanner.close();
+                        return;
+                    }
+                    default -> System.out.println("Invalid command!");
                 }
-                case "0" -> {
-                    System.out.println("До новых встреч");
-                    return;
-                }
+            } catch (IllegalArgumentException | IOException e) {
+                System.out.println("Ошибка: " + e.getMessage());
             }
+
         }
     }
-
-
-    public static boolean isPrime(long n) {
-        if (n < 2) return false;
-        for (int i = 2; i <= Math.sqrt(n); i++) {
-            if (n % i == 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static long cipher(long message, long exponent, long num) {
-        BigInteger messageBig = BigInteger.valueOf(message);
-        BigInteger openExponentBig = BigInteger.valueOf(exponent);
-        BigInteger numBig = BigInteger.valueOf(num);
-
-        return messageBig.modPow(openExponentBig, numBig).longValue();
-
-    }
-
-    public static Map<String, List<Long>> keyGenerator() {
-
-        Map<String, List<Long>> personalKeys = new HashMap<>();
-
-        long firstPrime = new Random().longs(OPEN_EXPONENT, 100000).filter(Main::isPrime).findFirst().orElse(FIRST_PRIME);
-        long secondPrime = new Random().longs(OPEN_EXPONENT, 100000).filter(n -> isPrime(n) && n != firstPrime).findFirst().orElse(SECOND_PRIME);
-
-        long eulerFunc = (firstPrime - 1) * (secondPrime - 1);
-        long openExponent = OPEN_EXPONENT;
-
-        long k = 1;
-        while ((k * eulerFunc + 1) % openExponent != 0) {
-            k++;
-        }
-        long secretExponent = (k * eulerFunc + 1) / openExponent;
-
-        long n = firstPrime * secondPrime;
-
-        personalKeys.put(OPEN_KEY_NAME, List.of(openExponent, n));
-        personalKeys.put(SECRET_KEY_NAME, List.of(secretExponent, n));
-
-        return personalKeys;
-    }
-
-    public static long hashAlgorithmFNV(String s) {
-        int basis = 0x811C9DC5;
-        int prime = 0x01000193;
-        byte[] bytes = s.getBytes();
-
-        for (byte b : bytes) {
-            basis ^= ((b & 0xFF));
-            basis *= prime;
-        }
-        return basis & 0xFFFFFFFFL;
-    }
-
-    public static long hashAlgorithmFNV(Path path) {
-        int basis = 0x811C9DC5;
-        int prime = 0x01000193;
-
-        byte[] buf = new byte[32 * 1024];
-
-        try (InputStream in = Files.newInputStream(path)) {
-            int n;
-            while ((n = in.read(buf)) != -1) {
-                for (int i = 0; i < n; i++) {
-                    basis ^= (buf[i] & 0xFF);
-                    basis *= prime;
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return basis & 0xFFFFFFFFL;
-    }
-
 }

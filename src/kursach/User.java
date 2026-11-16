@@ -1,15 +1,17 @@
 package kursach;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public class User {
+public class User implements Serializable {
 
     private String name;
     private List<Long> openKey;
     private List<Long> secretKey;
-    private String password;
+    private transient String password;
     private boolean isAuthorised = false;
+    private static final long serialVersionUID = 1L;
 
 
     public User(String name, List<Long> openKey, List<Long> secretKey, String password) {
@@ -47,11 +49,11 @@ public class User {
     }
 
     public String getPassword() {
-        if (password == null || password.isBlank()) throw new IllegalArgumentException("Invalid password");
         return password;
     }
 
     public void setPassword(String password) {
+        if (password == null || password.isBlank()) throw new IllegalArgumentException("Invalid password");
         this.password = password;
     }
 
