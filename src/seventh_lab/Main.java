@@ -11,9 +11,11 @@ import java.util.stream.IntStream;
 
 public class Main {
 
+   public static String WIN1251_CHARS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~Р‚РѓвЂљС“вЂћвЂ¦вЂ вЂЎв‚¬вЂ°Р‰вЂ№РЉРЊР‹РЏС’вЂвЂ™вЂњвЂќвЂўвЂ“вЂ”в„ўС™вЂєСљСњС›Сџ\u00A0РЋСћР€В¤ТђВ¦В§РЃВ©Р„В«В¬\u00ADВ®Р‡В°В±Р†С–Т‘ВµВ¶В·С‘в„–С”В»СР…С•С—РђР‘Р’Р“Р”Р•Р–Р—РР™РљР›РњРќРћРџР РЎРўРЈР¤РҐР¦Р§РЁР©РЄР«Р¬Р­Р®РЇР°Р±РІРіРґРµР¶Р·РёР№РєР»РјРЅРѕРїСЂСЃС‚СѓС„С…С†С‡С€С‰СЉС‹СЊСЌСЋСЏ";
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.err.println("ШИФРОВАНИЕ ГАММИРОВАНИЕМ");
+        System.out.println("РЁРР¤Р РћР’РђРќРР• Р“РђРњРњРР РћР’РђРќРР•Рњ");
         while (true) {
             printMenu();
             String command = scanner.nextLine();
@@ -21,47 +23,52 @@ public class Main {
                 switch (command) {
                     case "1" -> {
 
-                        System.out.print("Введите сообщение (байты): ");
+                        System.out.print("Р’РІРµРґРёС‚Рµ СЃРѕРѕР±С‰РµРЅРёРµ (Р±Р°Р№С‚С‹): ");
                         List<Byte> text = Arrays.stream(scanner.nextLine().split(" ")).map(s -> (byte) Integer.parseInt(s, 2)).toList();
-                        System.out.print("Введите гамму (байты): ");
+                        System.out.print("Р’РІРµРґРёС‚Рµ РіР°РјРјСѓ (Р±Р°Р№С‚С‹): ");
                         List<Byte> gamma = Arrays.stream(scanner.nextLine().split(" ")).map(s -> (byte) Integer.parseInt(s, 2)).toList();
 
                         gamma = correctGamma(text.size(), gamma);
 
-                        System.out.println("Вход:            " + text.stream().map(Main::byteToCorrectFormat).collect(Collectors.joining(" ")));
-                        System.out.println("Гамма:           " + gamma.stream().map(Main::byteToCorrectFormat).collect(Collectors.joining(" ")));
+                        System.out.println("Р’С…РѕРґ:            " + text.stream().map(Main::byteToCorrectFormat).collect(Collectors.joining(" ")));
+                        System.out.println("Р“Р°РјРјР°:           " + gamma.stream().map(Main::byteToCorrectFormat).collect(Collectors.joining(" ")));
 
                         String output = processConsole(text, gamma);
-                        System.out.printf("Результат(bin): %s\n", output);
+                        System.out.printf("Р РµР·СѓР»СЊС‚Р°С‚(bin): %s\n", output);
 
                         String[] binStrings = output.split(" ");
                         byte[] resultBytes = new byte[binStrings.length];
                         for (int i = 0; i < binStrings.length; i++) {
                             resultBytes[i] = (byte) Integer.parseInt(binStrings[i], 2);
                         }
-                        System.out.println("Результат:      " + new String(resultBytes, java.nio.charset.Charset.forName("Windows-1251")));
+                        System.out.println("Р РµР·СѓР»СЊС‚Р°С‚:      " + new String(resultBytes, java.nio.charset.Charset.forName("Windows-1251")));
                     }
                     case "2" -> {
-                        System.out.print("Введите сообщение: ");
-                        byte[] text = scanner.nextLine().getBytes(java.nio.charset.Charset.forName("Windows-1251"));
-                        System.out.print("Введите гамму: ");
+                        System.out.print("Р’РІРµРґРёС‚Рµ СЃРѕРѕР±С‰РµРЅРёРµ: ");
+                        String message = scanner.nextLine();
+                        if (Arrays.stream(message.split("")).anyMatch(s -> !WIN1251_CHARS.contains(s) )){
+                            System.out.println("РЎРћРћР‘Р©Р•РќРР• РЎРћР”Р•Р Р–РРў РЎРРњР’РћР›Р« РљРћРўРћР Р«РҐ РќР•Рў Р’ WINDOWS-1251!");
+                            continue;
+                        }
+                        byte[] text = message.getBytes(java.nio.charset.Charset.forName("Windows-1251"));
+                        System.out.print("Р’РІРµРґРёС‚Рµ РіР°РјРјСѓ: ");
                         byte[] gamma = scanner.nextLine().getBytes(java.nio.charset.Charset.forName("Windows-1251"));
 
                         gamma = correctGamma(text.length, gamma);
 
-                        System.out.println("Вход (байты):   " + IntStream.range(0, text.length).mapToObj(i -> byteToCorrectFormat(text[i])).collect(Collectors.joining(" ")));
+                        System.out.println("Р’С…РѕРґ (Р±Р°Р№С‚С‹):   " + IntStream.range(0, text.length).mapToObj(i -> byteToCorrectFormat(text[i])).collect(Collectors.joining(" ")));
                         byte[] finalGamma = gamma;
-                        System.out.println("Гамма (байты):  " + IntStream.range(0, gamma.length).mapToObj(i -> byteToCorrectFormat(finalGamma[i])).collect(Collectors.joining(" ")));
+                        System.out.println("Р“Р°РјРјР° (Р±Р°Р№С‚С‹):  " + IntStream.range(0, gamma.length).mapToObj(i -> byteToCorrectFormat(finalGamma[i])).collect(Collectors.joining(" ")));
 
                         byte[] output = processConsole(text, gamma);
-                        System.out.println("Результат(bin): " + IntStream.range(0, output.length).mapToObj(i -> byteToCorrectFormat(output[i])).collect(Collectors.joining(" ")));
-                        System.out.println("Результат:      " + new String(output, java.nio.charset.Charset.forName("Windows-1251")));
+                        System.out.println("Р РµР·СѓР»СЊС‚Р°С‚(bin): " + IntStream.range(0, output.length).mapToObj(i -> byteToCorrectFormat(output[i])).collect(Collectors.joining(" ")));
+                        System.out.println("Р РµР·СѓР»СЊС‚Р°С‚:      " + new String(output, java.nio.charset.Charset.forName("Windows-1251")));
                     }
                     case "3" -> {
-                        System.out.println("До свидания!");
+                        System.out.println("Р”Рѕ СЃРІРёРґР°РЅРёСЏ!");
                         return;
                     }
-                    default -> System.out.println("Неверная команда.");
+                    default -> System.out.println("РќРµРІРµСЂРЅР°СЏ РєРѕРјР°РЅРґР°.");
                 }
             } catch (
                     Exception e) {
@@ -81,7 +88,7 @@ public class Main {
     public static String processConsole(List<Byte> text, List<Byte> gamma) {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < text.size(); i++) {
-            result.append(byteToCorrectFormat((byte) (text.get(i) ^ gamma.get(i % gamma.size())))).append(" ");
+            result.append(byteToCorrectFormat((byte) (text.get(i) ^ gamma.get(i)))).append(" ");
         }
         return result.toString().trim();
     }
@@ -109,7 +116,7 @@ public class Main {
     }
 
     public static void printMenu() {
-        System.out.println("1. Бинарный ввод \n2. Символьный ввод\n3. Выход");
-        System.out.print("Выберите действие: ");
+        System.out.println("1. Р‘РёРЅР°СЂРЅС‹Р№ РІРІРѕРґ \n2. РЎРёРјРІРѕР»СЊРЅС‹Р№ РІРІРѕРґ\n3. Р’С‹С…РѕРґ");
+        System.out.print("Р’С‹Р±РµСЂРёС‚Рµ РґРµР№СЃС‚РІРёРµ: ");
     }
 }
