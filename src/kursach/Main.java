@@ -57,10 +57,10 @@ public class Main {
                         if (user.notAuthorised())
                             throw new IllegalArgumentException("You have no secret key of this user, try authorise at first!");
 
-                        BigInteger hash = Cipher.hashAlgorithmFNV(path);
+                        BigInteger hash = Cipher.hashAlgorithmSHA256(path);
                         BigInteger signature = Cipher.cipher(hash, user.getSecretKey().get(0), user.getSecretKey().get(1));
 
-                        System.out.println("Хэш документа (FNV-256): " + hash.toString(16));
+                        System.out.println("Хэш документа (sha256): " + hash.toString(16));
                         System.out.println("Подпись пользователя " + user.getName() + ": " + signature.toString(16));
                     }
                     case "5" -> {
@@ -85,7 +85,7 @@ public class Main {
                         User user = manager.getUserByName(name);
                         if (user == null) throw new IllegalArgumentException("No such user!");
 
-                        BigInteger hash = Cipher.hashAlgorithmFNV(path);
+                        BigInteger hash = Cipher.hashAlgorithmSHA256(path);
                         BigInteger checkHash = Cipher.cipher(signature, user.getOpenKey().get(0), user.getOpenKey().get(1));
                         boolean valid = (hash.equals(checkHash));
 
@@ -106,10 +106,10 @@ public class Main {
                         if (user.notAuthorised())
                             throw new IllegalArgumentException("You have no secret key of this user, try authorise at first!");
 
-                        BigInteger hash = Cipher.hashAlgorithmFNV(message);
+                        BigInteger hash = Cipher.hashAlgorithmSHA256(message);
                         BigInteger signature = Cipher.cipher(hash, user.getSecretKey().get(0), user.getSecretKey().get(1));
 
-                        System.out.println("Хэш документа (FNV-256): " + hash.toString(16));
+                        System.out.println("Хэш документа (sha256): " + hash.toString(16));
                         System.out.println("Подпись пользователя " + user.getName() + ": " + signature.toString(16));
                     }
                     case "7" -> {
@@ -132,7 +132,7 @@ public class Main {
                         User user = manager.getUserByName(name);
                         if (user == null) throw new IllegalArgumentException("No such user!");
 
-                        BigInteger hash = Cipher.hashAlgorithmFNV(message);
+                        BigInteger hash = Cipher.hashAlgorithmSHA256(message);
                         BigInteger checkHash = Cipher.cipher(signature, user.getOpenKey().get(0), user.getOpenKey().get(1));
                         boolean valid = (hash.equals(checkHash));
 

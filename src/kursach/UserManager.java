@@ -16,7 +16,7 @@ public class UserManager {
             throw new IllegalArgumentException("User with such name had already exist!");
         } else {
             users.add(user);
-            System.out.println("User " + user.getName() + " successfully added!");
+            System.out.println("Пользователь " + user.getName() + " успешно добавлен!");
         }
     }
 
@@ -24,13 +24,12 @@ public class UserManager {
         if (user == null || !users.contains(user)) throw new IllegalArgumentException("No such user!");
         if (!password.equals(user.getPassword())) throw new IllegalArgumentException("Wrong password!");
         users.remove(user);
-        System.out.println("User " + user.getName() + " successfully removed!");
+        System.out.println("Пользователь " + user.getName() + " успешно удален!");
     }
 
     public User getUserByName(String name) {
         return users.stream().filter(u -> name.equals(u.getName())).findFirst().orElse(null);
     }
-
 
     public void showUsers() {
         users.forEach(u -> System.out.println(u.toString()));
@@ -97,6 +96,4 @@ public class UserManager {
             System.out.println(e.getMessage());
         }
     }
-
-
 }

@@ -1,6 +1,8 @@
 package seventh_lab;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +13,8 @@ import java.util.stream.IntStream;
 
 public class Main {
 
-   public static String WIN1251_CHARS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏђ‘’“”•–—™љ›њќћџ\u00A0ЎўЈ¤Ґ¦§Ё©Є«¬\u00AD®Ї°±Ііґµ¶·ё№є»јЅѕїАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя";
+   public static Charset WIN1251_CHARS = java.nio.charset.Charset.forName("Windows-1251");
+   public static CharsetEncoder encoder = WIN1251_CHARS.newEncoder();
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -24,9 +27,9 @@ public class Main {
                     case "1" -> {
 
                         System.out.print("Введите сообщение (байты): ");
-                        List<Byte> text = Arrays.stream(scanner.nextLine().split(" ")).map(s -> (byte) Integer.parseInt(s, 2)).toList();
+                        List<Byte> text = Arrays.stream(scanner.nextLine().split("\\s+")).map(s -> (byte) Integer.parseInt(s, 2)).toList();
                         System.out.print("Введите гамму (байты): ");
-                        List<Byte> gamma = Arrays.stream(scanner.nextLine().split(" ")).map(s -> (byte) Integer.parseInt(s, 2)).toList();
+                        List<Byte> gamma = Arrays.stream(scanner.nextLine().split("\\s+")).map(s -> (byte) Integer.parseInt(s, 2)).toList();
 
                         gamma = correctGamma(text.size(), gamma);
 
@@ -46,13 +49,21 @@ public class Main {
                     case "2" -> {
                         System.out.print("Введите сообщение: ");
                         String message = scanner.nextLine();
-                        if (Arrays.stream(message.split("")).anyMatch(s -> !WIN1251_CHARS.contains(s) )){
+                        if (Arrays.stream(message.split("")).anyMatch(s -> !encoder.canEncode(s))){
                             System.out.println("СООБЩЕНИЕ СОДЕРЖИТ СИМВОЛЫ КОТОРЫХ НЕТ В WINDOWS-1251!");
                             continue;
                         }
                         byte[] text = message.getBytes(java.nio.charset.Charset.forName("Windows-1251"));
                         System.out.print("Введите гамму: ");
-                        byte[] gamma = scanner.nextLine().getBytes(java.nio.charset.Charset.forName("Windows-1251"));
+                        String gammaStr = scanner.nextLine();
+                        if (gammaStr.isEmpty()) throw new IllegalArgumentException("Гамма не может быть пустой.");
+
+                        if (Arrays.stream(gammaStr  .split("")).anyMatch(s -> !encoder.canEncode(s))){
+                            System.out.println("ГАММА СОДЕРЖИТ СИМВОЛЫ КОТОРЫХ НЕТ В WINDOWS-1251!");
+                            continue;
+                        }
+
+                        byte[] gamma = gammaStr.getBytes(java.nio.charset.Charset.forName("Windows-1251"));
 
                         gamma = correctGamma(text.length, gamma);
 
